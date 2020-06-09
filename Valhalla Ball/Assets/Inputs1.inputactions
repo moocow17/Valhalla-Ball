@@ -20,6 +20,14 @@
                     "expectedControlType": "Stick",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "L Bumper",
+                    "type": "Button",
+                    "id": "79d9af02-0ace-47dc-9351-49f963c4d2e2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -42,6 +50,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Aim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ee5f077f-cdd0-44b1-8bc6-f57bc4d8994b",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "L Bumper",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

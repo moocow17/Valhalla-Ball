@@ -88,6 +88,21 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 17a13a3d-ef8f-409a-9d2d-a3caa67b4622
     m_ActionName: Player/Aim[/XInputControllerWindows/rightStick,/XInputControllerWindows/rightStick]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4475277808571509384}
+        m_MethodName: OnLBumper
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 79d9af02-0ace-47dc-9351-49f963c4d2e2
+    m_ActionName: Player/L Bumper[/XInputControllerWindows/leftShoulder,/XInputControllerWindows/leftShoulder]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

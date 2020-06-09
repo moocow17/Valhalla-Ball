@@ -31,6 +31,15 @@ public class PlayerInputHandler : MonoBehaviour
         if (mover != null)
         {
             mover.SetAimInputVector(context.ReadValue<Vector2>());
+            Debug.Log(context.valueType.ToString());
+        }
+    }
+
+    public void OnLBumper(CallbackContext context)
+    {
+        if (mover != null)
+        {
+            mover.GatherBall(context.ReadValue<float>());
         }
     }
 
