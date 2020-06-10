@@ -19,8 +19,10 @@ public class Mover : MonoBehaviour
     [SerializeField]
     private int playerIndex = 0;
 
-    //private CharacterController controller;
     private new Rigidbody2D rigidbody2D;
+    private new GameObject gameObject;
+
+    private readonly float dropPointDistance = 3.2f;
 
     public Boundary boundary;
 
@@ -29,11 +31,14 @@ public class Mover : MonoBehaviour
     private Vector2 aimDirection = Vector2.zero;
     private Vector2 aimInputVector = Vector2.zero;
     private Vector2 rigidbody2DPosition = Vector2.zero;
-    
+
+    public bool isGathering = false;
+    public bool hasBall = false;
+
     private void Awake()
     {
-        //controller = GetComponent<CharacterController>();
         rigidbody2D = GetComponent<Rigidbody2D>();
+        gameObject = rigidbody2D.gameObject;
     }
 
     // Start is called before the first frame update
@@ -68,24 +73,30 @@ public class Mover : MonoBehaviour
 
     public void GatherBall(float buttonPress)
     {
-        //FUCK, JUST REALISED THIS APPROACH WONT WORK, IGNORE BELOW
-        //ACTIVATES COLLIDER WHICH WHEN IT COMES INTO CONTACT WITH BALL OR CARRIER WILL GIVE BALL TO THIS PLAYER
-        //set a bool 'isGathering' to true if button is being pressed; 
-        //set it to false if not being pressed (might have to do this in Update() function as this method will only be called if it is pressed
-        /*in the colliders method: 
-         * check if collider is hitting ball, if so and if player's isGathering is true:
-         * {
-         *  move ball instance to centre of player and attach it so it follows
-         *  set a variable in the player to indicate they own the ball (is this a race condition if two players grab ball?)
-         *  change the same variable in all other players to indicate they no longer own the ball
-         * }
-         * else:
-         * {
-         *  if isGathering is true: loop through other players and if connecting with another player who has the ball do same as above
-         * } */
+        if (buttonPress > 0) //if the button is being pressed down currently it will have a value of 0.001 to 1
+        {
+            isGathering = true;       
+        }
+        else
+        {
+            isGathering = false;
+        }
+    }
+    
+    public void DropBall()//drops the ball behinds the player relative to the direction they are facing
+    {
+        Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
+        hasBall = false;
+        Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
+        ballsCollider.attachedRigidbody.isKinematic = false;
+        ballsCollider.enabled = true;
+        ballObjectTransform.position = this.gameObject.transform.position - (this.gameObject.transform.right*dropPointDistance); 
+        ballObjectTransform.parent = null;
+        isGathering = false;
+
     }
 
-    void FixedUpdate()
+    private void MovePlayer()
     {
         //move player in direction
         moveDirection = new Vector2(moveInputVector.x, moveInputVector.y);
@@ -96,7 +107,10 @@ public class Mover : MonoBehaviour
             Mathf.Clamp(rigidbody2D.position.x, boundary.xMin, boundary.xMax),
             Mathf.Clamp(rigidbody2D.position.y, boundary.yMin, boundary.yMax)
         );
+    }
 
+    private void AimPlayer()
+    {
         //set aim direction for player and rotate accordingly
         if (aimInputVector.x + aimInputVector.y != 0)
         {
@@ -105,5 +119,16 @@ public class Mover : MonoBehaviour
             aimDirection = rigidbody2DPosition + aimDirection;
             LookAt2D(rigidbody2D.transform, aimDirection);
         }
+    }
+
+    private void Update()
+    {
+        
+    }
+
+    void FixedUpdate()
+    {
+        MovePlayer();
+        AimPlayer();        
     }
 }

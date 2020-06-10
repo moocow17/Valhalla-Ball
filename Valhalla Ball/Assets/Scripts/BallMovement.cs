@@ -2,25 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BallBounce : MonoBehaviour
+public class BallMovement : MonoBehaviour
 {
-    [SerializeField]
-    private Vector2 initialVelocity;
+    //[SerializeField]
+    //private Vector2 initialVelocity;
 
     private Rigidbody2D ballRigidBody;
-
     Vector2 lastVelocity;
+    public bool isOwned = false; 
+
 
     void Awake()
     {
         ballRigidBody = GetComponent<Rigidbody2D>();
-        ballRigidBody.velocity = initialVelocity;
+        //ballRigidBody.velocity = initialVelocity;
     }
 
     // Update is called once per frame
     void Update()
     {
-        lastVelocity = ballRigidBody.velocity;
+        lastVelocity = ballRigidBody.velocity;        
+    }
+
+    void FixedUpdate()
+    {
+        
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

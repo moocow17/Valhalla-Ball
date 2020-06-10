@@ -31,7 +31,6 @@ public class PlayerInputHandler : MonoBehaviour
         if (mover != null)
         {
             mover.SetAimInputVector(context.ReadValue<Vector2>());
-            Debug.Log(context.valueType.ToString());
         }
     }
 
@@ -39,7 +38,22 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (mover != null)
         {
-            mover.GatherBall(context.ReadValue<float>());
+            if (mover.hasBall == true)
+            {
+                mover.DropBall();
+            }
+            else
+            {
+                mover.GatherBall(context.ReadValue<float>());
+            }            
+        }
+    }
+
+    public void OnRTrigger(CallbackContext context)
+    {
+        if (mover != null)
+        {
+            
         }
     }
 
