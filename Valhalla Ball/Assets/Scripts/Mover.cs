@@ -22,7 +22,7 @@ public class Mover : MonoBehaviour
     private new Rigidbody2D rigidbody2D;
     private new GameObject gameObject;
 
-    private readonly float dropPointDistance = 3.2f;
+    private readonly float dropPointDistance = 3.4f;
 
     public Boundary boundary;
 
@@ -70,8 +70,8 @@ public class Mover : MonoBehaviour
         var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
-
-    public void GatherBall(float buttonPress)
+    
+    public void GatherBall(float buttonPress) //allows player to gather/pickup/steal the ball; actual gathering is done in the IdentifyGather script
     {
         if (buttonPress > 0) //if the button is being pressed down currently it will have a value of 0.001 to 1
         {
@@ -83,15 +83,17 @@ public class Mover : MonoBehaviour
         }
     }
     
-    public void DropBall()//drops the ball behinds the player relative to the direction they are facing
+    public void DropBall()//drops the ball behinds the player relative to the direction they are facing and slows its movement while making its movement align with the player movement
     {
         Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
+        Debug.Log(this.gameObject.ToString());
         hasBall = false;
         Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
         ballsCollider.attachedRigidbody.isKinematic = false;
         ballsCollider.enabled = true;
         ballObjectTransform.position = this.gameObject.transform.position - (this.gameObject.transform.right*dropPointDistance); 
         ballObjectTransform.parent = null;
+        ballsCollider.attachedRigidbody.velocity = rigidbody2D.velocity * 0.1f;
         isGathering = false;
 
     }

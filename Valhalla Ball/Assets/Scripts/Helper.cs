@@ -12,7 +12,7 @@ public static class Helper
         {
             if (tr.tag == tag)
             {
-                Debug.Log(tr.GetComponent<T>().ToString());
+                //Debug.Log(tr.GetComponent<T>().ToString());
                 return tr.GetComponent<T>();                
             }
         }

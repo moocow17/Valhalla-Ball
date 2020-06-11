@@ -34,7 +34,7 @@ public class PlayerInputHandler : MonoBehaviour
         }
     }
 
-    public void OnLBumper(CallbackContext context)
+    public void OnLBumper(CallbackContext context) //this is coded a bit shit; currently it is forced for Drop Ball and Gather Ball to be mapped to the same button, potentially move sorting logic into Mover class or another class
     {
         if (mover != null)
         {
