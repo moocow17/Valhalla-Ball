@@ -17,6 +17,7 @@ public class IdentifyGather : MonoBehaviour
     private void Gather(Collider2D collision)
     {
         gameObjectsMover.hasBall = true;
+        gameObjectsMover.isGathering = false;
         collision.attachedRigidbody.isKinematic = true;
         collision.enabled = false;
         collision.transform.position = gameObject.transform.position;
@@ -29,18 +30,16 @@ public class IdentifyGather : MonoBehaviour
         {
             if (collision.CompareTag("Player"))
             {
-                Mover playerMover = Helper.FindComponentInChildWithTag<Mover>(this.gameObject, "Player");
-                Debug.Log("otherPlayerGameObject's name: " + playerMover.gameObject.name.ToString());
+                Mover playerMover = (Mover)collision.gameObject.GetComponent(typeof(Mover));
+                //Mover playerMover = Helper.FindComponentInChildWithTag<Mover>(collision.gameObject, "Player");
                 GameObject otherPlayerGameObject = playerMover.gameObject;
                 if(playerMover.hasBall)
                 {
-
                     //move ball to new player
-                    Gather(otherPlayerGameObject.GetComponent<Collider2D>());
+                    Collider2D ballCollider = Helper.FindComponentInChildWithTag<Collider2D>(collision.gameObject, "Ball");
+                    Gather(ballCollider.GetComponent<Collider2D>());
                     //set other player's hasBall property to false
-
                     playerMover.hasBall = false;
-                    Debug.Log("Player: " + playerMover.GetPlayerIndex().ToString() + " , Player has ball: " + playerMover.hasBall.ToString());
                 }
                 return;
             }

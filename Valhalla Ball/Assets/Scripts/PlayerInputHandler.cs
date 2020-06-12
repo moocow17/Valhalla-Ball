@@ -9,6 +9,7 @@ public class PlayerInputHandler : MonoBehaviour
 {
     private PlayerInput playerInput;
     private Mover mover;
+    private int pressCounter = 0;
 
     private void Awake()
     {
@@ -36,16 +37,32 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnLBumper(CallbackContext context) //this is coded a bit shit; currently it is forced for Drop Ball and Gather Ball to be mapped to the same button, potentially move sorting logic into Mover class or another class
     {
+        pressCounter++;
         if (mover != null)
         {
-            if (mover.hasBall == true)
+            if (pressCounter == 1) //onEntered: when button is first pressed
             {
-                mover.DropBall();
+                //do nothing?               
             }
-            else
+            if (pressCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
             {
-                mover.GatherBall(context.ReadValue<float>());
-            }            
+
+                if (mover.hasBall == true) //if they DO have the ball then release it
+                {
+                    mover.DropBall();
+                }
+                else //if they DONT have the ball then set isGathering to true; the gatherCollider will then automatically pick it up (maybe get GatherCollider to set isGathering to false once gathered?)
+                {
+                    mover.SetIsGathering(context.ReadValue<float>());
+                }
+                
+            }
+            if (pressCounter == 3) //onRelease: when button is released
+            {
+                //if they DONT have the ball then set isGathering to false
+                mover.SetIsGathering(context.ReadValue<float>());
+                pressCounter = 0; //on release prep it so the next press takes them to onEntered again
+            }     
         }
     }
 
