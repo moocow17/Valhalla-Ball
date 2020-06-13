@@ -14,10 +14,22 @@ public class Boundary
 public class Mover : MonoBehaviour
 {
     [SerializeField]
-    private float MoveSpeed = 1000;
+    private float MoveSpeed = 1000f;
 
     [SerializeField]
     private int playerIndex = 0;
+
+    [SerializeField]
+    private float maxThrowForce = 100f;
+
+    [SerializeField]
+    private float minThrowForce = 0.2f;
+
+    [SerializeField]
+    float maxForceHoldDownTime = 3f;
+
+    private float throwHoldDownStartTime;
+    private float holdTimeNormalised;
 
     private new Rigidbody2D rigidbody2D;
     private new GameObject gameObject;
@@ -76,29 +88,57 @@ public class Mover : MonoBehaviour
         if (buttonPress > 0) //if the button is being pressed down currently it will have a value of 0.001 to 1
         {
             isGathering = true;
-            Debug.Log("isGathering to true");
         }
         else
         {
-            Debug.Log("isGathering to false");
             isGathering = false;
         }
     }
     
     public void DropBall()//drops the ball behinds the player relative to the direction they are facing and slows its movement while making its movement align with the player movement
+    {        
+        Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
+        hasBall = false;
+        Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
+        ballsCollider.attachedRigidbody.isKinematic = false;
+        ballsCollider.enabled = true;
+        ballObjectTransform.position = this.gameObject.transform.position - (this.gameObject.transform.right * dropPointDistance);
+        ballObjectTransform.parent = null;
+        ballsCollider.attachedRigidbody.velocity = rigidbody2D.velocity * 0.1f;
+        isGathering = false;
+    }
+
+    public void ChargeThrow()//Gets the time which the player started charging a throw
     {
-        //if(!isGathering)
-        //{
-            Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
-            hasBall = false;
-            Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
-            ballsCollider.attachedRigidbody.isKinematic = false;
-            ballsCollider.enabled = true;
-            ballObjectTransform.position = this.gameObject.transform.position - (this.gameObject.transform.right * dropPointDistance);
-            ballObjectTransform.parent = null;
-            ballsCollider.attachedRigidbody.velocity = rigidbody2D.velocity * 0.1f;
-            isGathering = false;
-        //}
+        throwHoldDownStartTime = Time.time;
+    }
+
+    public float CalculateThrowForce(float throwHoldTime)//calculates what the throw force should be based on how long the throw has been charging for
+    {     
+        holdTimeNormalised = Mathf.Clamp01(throwHoldTime / maxForceHoldDownTime);
+        float force = holdTimeNormalised * maxThrowForce;
+        force = force + minThrowForce;
+        Debug.Log("Throw Hold time: " + throwHoldTime.ToString() + ", Normalised Hold Time: " + holdTimeNormalised + ", Throw force: " + force.ToString());
+        return force;
+    }
+
+    public void ThrowBall()//throws the ball infront of the player relative to the direction they are facing and changes its velocity based on how long the throw button was held for
+    {
+        Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
+        hasBall = false;
+        Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
+        ballsCollider.attachedRigidbody.isKinematic = false;
+        ballsCollider.enabled = true;
+        ballObjectTransform.position = this.gameObject.transform.position + (this.gameObject.transform.right * dropPointDistance);
+        ballObjectTransform.parent = null;
+        float throwHoldTime = Time.time - throwHoldDownStartTime;
+        ballsCollider.attachedRigidbody.velocity = this.gameObject.transform.right * CalculateThrowForce(throwHoldTime);
+
+
+        /*var speed = ballsCollider.attachedRigidbody.velocity.magnitude;
+        var direction = Vector2.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
+
+        ballRigidBody.velocity = direction * Mathf.Max(speed, 0f);*/
     }
 
     private void MovePlayer()

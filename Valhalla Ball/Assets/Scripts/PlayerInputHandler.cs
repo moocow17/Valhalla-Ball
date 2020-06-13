@@ -9,7 +9,10 @@ public class PlayerInputHandler : MonoBehaviour
 {
     private PlayerInput playerInput;
     private Mover mover;
-    private int pressCounter = 0;
+    private int pressRBCounter = 0;
+    private int pressLBCounter = 0;
+    private bool rightTriggerAlreadySuppressed = false;
+    private bool leftTriggerAlreadySuppressed = false;
 
     private void Awake()
     {
@@ -37,31 +40,31 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnLBumper(CallbackContext context) //this is coded a bit shit; currently it is forced for Drop Ball and Gather Ball to be mapped to the same button, potentially move sorting logic into Mover class or another class
     {
-        pressCounter++;
+        pressLBCounter++;
+
+        //Debug.Log("LB presses: " + pressCounterLB.ToString());
         if (mover != null)
         {
-            if (pressCounter == 1) //onEntered: when button is first pressed
+            if (pressLBCounter == 1) //onEntered: when button is first pressed
             {
                 //do nothing?               
             }
-            if (pressCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
+            if (pressLBCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
             {
-
                 if (mover.hasBall == true) //if they DO have the ball then release it
                 {
                     mover.DropBall();
                 }
-                else //if they DONT have the ball then set isGathering to true; the gatherCollider will then automatically pick it up (maybe get GatherCollider to set isGathering to false once gathered?)
+                else //if they DONT have the ball then set isGathering to true; the gatherCollider will then automatically pick it up
                 {
                     mover.SetIsGathering(context.ReadValue<float>());
-                }
-                
+                }                
             }
-            if (pressCounter == 3) //onRelease: when button is released
+            if (pressLBCounter == 3) //onRelease: when button is released
             {
                 //if they DONT have the ball then set isGathering to false
                 mover.SetIsGathering(context.ReadValue<float>());
-                pressCounter = 0; //on release prep it so the next press takes them to onEntered again
+                pressLBCounter = 0; //on release prep it so the next press takes them to onEntered again
             }     
         }
     }
@@ -70,8 +73,35 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (mover != null)
         {
-            
-        }
+            if (context.ReadValue<float>() > 0f) //onPressed (this could run an unknown amount of times)
+            {
+                
+                if (rightTriggerAlreadySuppressed == false) //used to make sure the action only runs once until this trigger is released
+                {
+                    if (mover.hasBall == true) //if they DO have the ball then start charging
+                    {
+                        mover.ChargeThrow();//start charging
+                    }
+                    else //if they DONT have the ball then do nothing? (potentially make this shield)
+                    {
+
+                    }
+                }
+                rightTriggerAlreadySuppressed = true;
+            }
+            else if (context.ReadValue<float>() == 0f) //onRelease
+            {
+                if (mover.hasBall == true) //if they DO have the ball then release the throw
+                {
+                    mover.ThrowBall();
+                }
+                else //if they DONT have the ball then do nothing? need to factor in the possibility that the ball has been stolen since they started charging
+                {
+
+                }
+                rightTriggerAlreadySuppressed = false;
+            }
+        } 
     }
 
     // Start is called before the first frame update
