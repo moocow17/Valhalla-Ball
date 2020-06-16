@@ -22,6 +22,14 @@
                     "interactions": ""
                 },
                 {
+                    "name": "L Trigger",
+                    "type": "Button",
+                    "id": "b139ed24-c916-4a0d-9bd8-251339725458",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
                     "name": "L Bumper",
                     "type": "Button",
                     "id": "79d9af02-0ace-47dc-9351-49f963c4d2e2",
@@ -33,6 +41,14 @@
                     "name": "R Trigger",
                     "type": "Button",
                     "id": "51fcbb06-f0a8-4eb2-9a08-57152c05c8a2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "R Bumper",
+                    "type": "Button",
+                    "id": "23a861d4-b61a-45b9-82f7-892ff954b69a",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -80,6 +96,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "R Trigger",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3c1eae73-19d2-439c-9ecf-88c68ceca99d",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "R Bumper",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7891c2f5-9b5e-4901-8dfc-32dba5e7e8be",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "L Trigger",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

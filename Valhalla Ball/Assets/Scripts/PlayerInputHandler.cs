@@ -69,6 +69,29 @@ public class PlayerInputHandler : MonoBehaviour
         }
     }
 
+    public void OnRBumper(CallbackContext context) //this is coded a bit shit; currently it is forced for Drop Ball and Gather Ball to be mapped to the same button, potentially move sorting logic into Mover class or another class
+    {
+        pressRBCounter++;
+
+        //Debug.Log("LB presses: " + pressCounterLB.ToString());
+        if (mover != null)
+        {
+            if (pressRBCounter == 1) //onEntered: when button is first pressed
+            {
+                mover.Attack();//
+            }
+            if (pressRBCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
+            {
+                //
+            }
+            if (pressRBCounter == 3) //onRelease: when button is released
+            {
+                //
+                pressRBCounter = 0; //on release prep it so the next press takes them to onEntered again
+            }
+        }
+    }
+
     public void OnRTrigger(CallbackContext context)
     {
         if (mover != null)
@@ -102,6 +125,27 @@ public class PlayerInputHandler : MonoBehaviour
                 rightTriggerAlreadySuppressed = false;
             }
         } 
+    }
+
+    public void OnLTrigger(CallbackContext context)
+    {
+        if (mover != null)
+        {
+            if (context.ReadValue<float>() > 0f) //onPressed (this could run an unknown amount of times)
+            {
+
+                if (leftTriggerAlreadySuppressed == false) //used to make sure the action only runs once until this trigger is released
+                {
+                    
+                }
+                leftTriggerAlreadySuppressed = true;
+            }
+            else if (context.ReadValue<float>() == 0f) //onRelease
+            {
+                
+                leftTriggerAlreadySuppressed = false;
+            }
+        }
     }
 
     // Start is called before the first frame update

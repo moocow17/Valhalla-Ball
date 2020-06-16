@@ -31,7 +31,7 @@ public class IdentifyGather : MonoBehaviour
             if (collision.CompareTag("Player"))
             {
                 Mover playerMover = (Mover)collision.gameObject.GetComponent(typeof(Mover));
-                //Mover playerMover = Helper.FindComponentInChildWithTag<Mover>(collision.gameObject, "Player");
+                
                 GameObject otherPlayerGameObject = playerMover.gameObject;
                 if(playerMover.hasBall)
                 {
@@ -48,25 +48,6 @@ public class IdentifyGather : MonoBehaviour
                 Gather(collision);
             }
         }
-
-
-        /* function OnTriggerEnter(other : Collider)
-{
-         if (other.gameObject.CompareTag("Attack"))
-         {
-             damage = other.GetComponent(AttackTemplate).power - defense;
-
-             /*ACTIVATES COLLIDER WHICH WHEN IT COMES INTO CONTACT WITH BALL OR CARRIER WILL GIVE BALL TO THIS PLAYER
-              * check if collider is hitting ball, if so and if player's isGathering is true:
-              * {
-              *  move ball instance to centre of player and attach it so it follows
-              *  set a variable in the player to indicate they own the ball (is this a race condition if two players grab ball?)
-              *  change the same variable in all other players to indicate they no longer own the ball?
-              * }
-              * else:
-              * {
-              *  if isGathering is true: loop through other players and if connecting with another player who has the ball do same as above
-              * } */
     }
 
     

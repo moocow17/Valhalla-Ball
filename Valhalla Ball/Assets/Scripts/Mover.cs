@@ -16,8 +16,7 @@ public class Mover : MonoBehaviour
     [SerializeField]
     private float MoveSpeed = 1000f;
 
-    [SerializeField]
-    private int playerIndex = 0;
+    public int playerIndex = 0;
 
     [SerializeField]
     private float maxThrowForce = 100f;
@@ -35,6 +34,7 @@ public class Mover : MonoBehaviour
     private new GameObject gameObject;
 
     private readonly float dropPointDistance = 3.4f;
+    public float hitStrengthMultiplier = 5000f;
 
     public Boundary boundary;
 
@@ -133,25 +133,102 @@ public class Mover : MonoBehaviour
         ballObjectTransform.parent = null;
         float throwHoldTime = Time.time - throwHoldDownStartTime;
         ballsCollider.attachedRigidbody.velocity = this.gameObject.transform.right * CalculateThrowForce(throwHoldTime);
+    }
 
+    public void Attack()//hits in front of the player; any other players in the colliders in the Hitbox gameobject will die
+    {
+        Collider2D currentPlayerPolygonCollider = gameObject.FindComponentInChildWithTag<PolygonCollider2D>("Hitbox");
+        Collider2D currentPlayerCircleCollider = gameObject.FindComponentInChildWithTag<CircleCollider2D>("Hitbox");
 
-        /*var speed = ballsCollider.attachedRigidbody.velocity.magnitude;
-        var direction = Vector2.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
+        //Attack animation/effect
 
-        ballRigidBody.velocity = direction * Mathf.Max(speed, 0f);*/
+        
+        
+
+        //DETECT ALL OTHER PLAYERS THAT ARE HIT   
+        //get player colliders hit by the polygon hit collider stored as a list        
+        List<Collider2D> hitPlayersFromPolygonCollider = new List<Collider2D>();
+        LayerMask playerLayerMask = LayerMask.GetMask("Player");
+        ContactFilter2D playerContactFilter = new ContactFilter2D();        
+        playerContactFilter.SetLayerMask(playerLayerMask);//With this, the overlap collider will only detect colliders that have the "Player" layer on it, including the controlled player
+        int polygonColliderCount = currentPlayerPolygonCollider.OverlapCollider(playerContactFilter, hitPlayersFromPolygonCollider);
+
+        //get player colliders hit by the circle hit collider stored as a list
+        List<Collider2D> hitPlayersFromCircleCollider = new List<Collider2D>();
+        int circleColliderCount = currentPlayerCircleCollider.OverlapCollider(playerContactFilter, hitPlayersFromCircleCollider);
+
+        //get union of the above lists
+        IEnumerable<Collider2D> unionOfHitBoxLists = hitPlayersFromPolygonCollider.Union(hitPlayersFromCircleCollider);
+
+        //KILL THE HIT PLAYERS (except the player that did the hit)
+        foreach (Collider2D playerCollider in unionOfHitBoxLists)
+        {
+            //disattach balls from players who are about to die
+            Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(playerCollider.gameObject, "Ball");
+            if (ballsCollider != null)
+            {
+                Debug.Log("I did a thing!");
+                ballsCollider.attachedRigidbody.isKinematic = false;
+                ballsCollider.enabled = true;
+                ballsCollider.transform.parent = null;
+                Mover playerMover = (Mover)playerCollider.gameObject.GetComponent(typeof(Mover));
+                playerMover.hasBall = false;
+            }
+            //kill the players    
+            if (playerCollider.name != this.gameObject.name)
+            {
+                /*Vector2 direction = (playerCollider.transform.position - transform.position)*10000; //intended to shoot the player off the edge really fast like in advance wars so they could explode off the edge like in smash bros; couldnt get it to work
+                playerCollider.attachedRigidbody.AddForceAtPosition(direction, transform.position);*/
+                playerCollider.gameObject.SetActive(false);
+            }
+            
+        }
+
+        //DEATH ANIMATIONS add: https://www.youtube.com/watch?v=uR2jcU3x3kU
+
+        //PROMPT RESPAWN OF THOSE PLAYERS
+
+        //GET ALL BALLS THAT WILL BE HIT
+        //get ball colliders hit by the polygon hit collider stored as a list
+        List<Collider2D> hitBallsFromPolygonCollider = new List<Collider2D>();
+        LayerMask ballLayerMask = LayerMask.GetMask("Ball");
+        ContactFilter2D ballContactFilter = new ContactFilter2D();
+        ballContactFilter.SetLayerMask(ballLayerMask);//With this, the overlap collider will only detect colliders that have the "Ball" layer on it
+        int polygonBallColliderCount = currentPlayerPolygonCollider.OverlapCollider(ballContactFilter, hitBallsFromPolygonCollider);
+
+        //get player colliders hit by the circle hit collider stored as a list
+        List<Collider2D> hitBallsFromCircleCollider = new List<Collider2D>();
+        int circleBallColliderCount = currentPlayerCircleCollider.OverlapCollider(ballContactFilter, hitBallsFromCircleCollider);
+
+        //get union of the above lists
+        IEnumerable<Collider2D> unionOfBallHitBoxLists = hitBallsFromPolygonCollider.Union(hitBallsFromCircleCollider);
+
+        //SEND FORCES OUTWARDS TO AFFECT BALL  
+        foreach (Collider2D ballCollider in unionOfBallHitBoxLists)
+        {
+            Vector2 direction = (ballCollider.transform.position - currentPlayerCircleCollider.transform.position);
+            Debug.Log("Direction: " + direction.ToString());
+            Debug.Log("Direction normalised: " + direction.normalized.ToString());
+            ballCollider.attachedRigidbody.AddForce(direction.normalized*hitStrengthMultiplier);
+        }
+
     }
 
     private void MovePlayer()
     {
         //move player in direction
-        moveDirection = new Vector2(moveInputVector.x, moveInputVector.y);
-        moveDirection = moveDirection * MoveSpeed * Time.fixedDeltaTime;
-        rigidbody2D.velocity = moveDirection;
-        rigidbody2D.position = new Vector3
-        (
-            Mathf.Clamp(rigidbody2D.position.x, boundary.xMin, boundary.xMax),
-            Mathf.Clamp(rigidbody2D.position.y, boundary.yMin, boundary.yMax)
-        );
+        if(rigidbody2D.isKinematic != true)
+        {
+            moveDirection = new Vector2(moveInputVector.x, moveInputVector.y);
+            moveDirection = moveDirection * MoveSpeed * Time.fixedDeltaTime;
+            rigidbody2D.velocity = moveDirection;
+            rigidbody2D.position = new Vector3
+            (
+                Mathf.Clamp(rigidbody2D.position.x, boundary.xMin, boundary.xMax),
+                Mathf.Clamp(rigidbody2D.position.y, boundary.yMin, boundary.yMax)
+            );
+        }
+        
     }
 
     private void AimPlayer()

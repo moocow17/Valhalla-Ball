@@ -35,9 +35,33 @@ public class @Inputs1 : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
+                    ""name"": ""L Trigger"",
+                    ""type"": ""Button"",
+                    ""id"": ""b139ed24-c916-4a0d-9bd8-251339725458"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
                     ""name"": ""L Bumper"",
                     ""type"": ""Button"",
                     ""id"": ""79d9af02-0ace-47dc-9351-49f963c4d2e2"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""R Trigger"",
+                    ""type"": ""Button"",
+                    ""id"": ""51fcbb06-f0a8-4eb2-9a08-57152c05c8a2"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""R Bumper"",
+                    ""type"": ""Button"",
+                    ""id"": ""23a861d4-b61a-45b9-82f7-892ff954b69a"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -76,6 +100,39 @@ public class @Inputs1 : IInputActionCollection, IDisposable
                     ""action"": ""L Bumper"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""93d0925c-206c-458b-91cd-7c88e68f0b6e"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""R Trigger"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3c1eae73-19d2-439c-9ecf-88c68ceca99d"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""R Bumper"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7891c2f5-9b5e-4901-8dfc-32dba5e7e8be"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""L Trigger"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -86,7 +143,10 @@ public class @Inputs1 : IInputActionCollection, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
+        m_Player_LTrigger = m_Player.FindAction("L Trigger", throwIfNotFound: true);
         m_Player_LBumper = m_Player.FindAction("L Bumper", throwIfNotFound: true);
+        m_Player_RTrigger = m_Player.FindAction("R Trigger", throwIfNotFound: true);
+        m_Player_RBumper = m_Player.FindAction("R Bumper", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -138,14 +198,20 @@ public class @Inputs1 : IInputActionCollection, IDisposable
     private IPlayerActions m_PlayerActionsCallbackInterface;
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Aim;
+    private readonly InputAction m_Player_LTrigger;
     private readonly InputAction m_Player_LBumper;
+    private readonly InputAction m_Player_RTrigger;
+    private readonly InputAction m_Player_RBumper;
     public struct PlayerActions
     {
         private @Inputs1 m_Wrapper;
         public PlayerActions(@Inputs1 wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Aim => m_Wrapper.m_Player_Aim;
+        public InputAction @LTrigger => m_Wrapper.m_Player_LTrigger;
         public InputAction @LBumper => m_Wrapper.m_Player_LBumper;
+        public InputAction @RTrigger => m_Wrapper.m_Player_RTrigger;
+        public InputAction @RBumper => m_Wrapper.m_Player_RBumper;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -161,9 +227,18 @@ public class @Inputs1 : IInputActionCollection, IDisposable
                 @Aim.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
                 @Aim.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
                 @Aim.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @LTrigger.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLTrigger;
+                @LTrigger.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLTrigger;
+                @LTrigger.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLTrigger;
                 @LBumper.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLBumper;
                 @LBumper.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLBumper;
                 @LBumper.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLBumper;
+                @RTrigger.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRTrigger;
+                @RTrigger.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRTrigger;
+                @RTrigger.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRTrigger;
+                @RBumper.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRBumper;
+                @RBumper.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRBumper;
+                @RBumper.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRBumper;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -174,9 +249,18 @@ public class @Inputs1 : IInputActionCollection, IDisposable
                 @Aim.started += instance.OnAim;
                 @Aim.performed += instance.OnAim;
                 @Aim.canceled += instance.OnAim;
+                @LTrigger.started += instance.OnLTrigger;
+                @LTrigger.performed += instance.OnLTrigger;
+                @LTrigger.canceled += instance.OnLTrigger;
                 @LBumper.started += instance.OnLBumper;
                 @LBumper.performed += instance.OnLBumper;
                 @LBumper.canceled += instance.OnLBumper;
+                @RTrigger.started += instance.OnRTrigger;
+                @RTrigger.performed += instance.OnRTrigger;
+                @RTrigger.canceled += instance.OnRTrigger;
+                @RBumper.started += instance.OnRBumper;
+                @RBumper.performed += instance.OnRBumper;
+                @RBumper.canceled += instance.OnRBumper;
             }
         }
     }
@@ -185,6 +269,9 @@ public class @Inputs1 : IInputActionCollection, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnAim(InputAction.CallbackContext context);
+        void OnLTrigger(InputAction.CallbackContext context);
         void OnLBumper(InputAction.CallbackContext context);
+        void OnRTrigger(InputAction.CallbackContext context);
+        void OnRBumper(InputAction.CallbackContext context);
     }
 }
