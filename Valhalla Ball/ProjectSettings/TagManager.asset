@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Ball
   - Hitbox
+  - SpawnPoint
+  - WhiteSpawnPoint
+  - BlackSpawnPoint
   layers:
   - Default
   - TransparentFX

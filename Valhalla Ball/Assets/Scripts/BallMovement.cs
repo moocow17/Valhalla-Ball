@@ -6,6 +6,7 @@ public class BallMovement : MonoBehaviour
 {
     //[SerializeField]
     //private Vector2 initialVelocity;
+    public int ballIndex;
 
     private Rigidbody2D ballRigidBody;
     Vector2 lastVelocity;

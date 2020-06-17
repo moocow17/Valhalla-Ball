@@ -14,22 +14,25 @@ public class Boundary
 public class Mover : MonoBehaviour
 {
     [SerializeField]
-    private float MoveSpeed = 1000f;
+    private float MoveSpeed;
 
     public int playerIndex = 0;
+    public int playerTeam = 0;
 
     [SerializeField]
-    private float maxThrowForce = 100f;
+    private float maxThrowForce;
 
     [SerializeField]
-    private float minThrowForce = 0.2f;
+    private float minThrowForce;
 
     [SerializeField]
-    float maxForceHoldDownTime = 3f;
+    float maxForceHoldDownTime;
+
 
     private float throwHoldDownStartTime;
     private float holdTimeNormalised;
 
+    private RespawnManager gameController;
     private new Rigidbody2D rigidbody2D;
     private new GameObject gameObject;
 
@@ -51,6 +54,8 @@ public class Mover : MonoBehaviour
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
         gameObject = rigidbody2D.gameObject;
+        GameObject gameControllerObject = GameObject.FindWithTag("GameController");
+        gameController = gameControllerObject.GetComponent<RespawnManager>();
     }
 
     // Start is called before the first frame update
@@ -179,7 +184,7 @@ public class Mover : MonoBehaviour
             {
                 /*Vector2 direction = (playerCollider.transform.position - transform.position)*10000; //intended to shoot the player off the edge really fast like in advance wars so they could explode off the edge like in smash bros; couldnt get it to work
                 playerCollider.attachedRigidbody.AddForceAtPosition(direction, transform.position);*/
-                playerCollider.gameObject.SetActive(false);
+                KillPlayer(playerCollider.gameObject);
             }
             
         }
@@ -212,6 +217,12 @@ public class Mover : MonoBehaviour
             ballCollider.attachedRigidbody.AddForce(direction.normalized*hitStrengthMultiplier);
         }
 
+    }
+
+    private void KillPlayer(GameObject player)
+    {
+        player.SetActive(false);
+        gameController.PrepPlayerRespawn(player);
     }
 
     private void MovePlayer()
