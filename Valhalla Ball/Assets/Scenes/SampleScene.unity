@@ -603,9 +603,11 @@ MonoBehaviour:
   maxThrowForce: 80
   minThrowForce: 1
   maxForceHoldDownTime: 1
-  hitStartupTimeIncrement: 0.6
+  hitStartupTimeIncrement: 1
   isSwinging: 0
-  hitFreezeTimeIncrement: 0.2
+  attackState: 0
+  attackStateTime: 0
+  hitFreezeTimeIncrement: 1
   isFrozen: 0
   nextAttackTimeIncrement: 1
   isHitting: 0
@@ -1126,6 +1128,8 @@ MonoBehaviour:
   maxForceHoldDownTime: 1
   hitStartupTimeIncrement: 0
   isSwinging: 0
+  attackState: 0
+  attackStateTime: 0
   hitFreezeTimeIncrement: 0
   isFrozen: 0
   nextAttackTimeIncrement: 0

@@ -10,6 +10,12 @@ public class Boundary
     public float xMin, xMax, yMin, yMax;
 }
 
+public enum AttackState {
+    Idle,
+    Windup,
+    Backswing
+}
+
 
 public class Mover : MonoBehaviour
 {
@@ -31,13 +37,14 @@ public class Mover : MonoBehaviour
     float hitStartupTime;
     [SerializeField]
     float hitStartupTimeIncrement;
-    public bool isSwinging = false;
+
+    public AttackState attackState;
+    public float attackStateTime;
 
     float hitFreezeTime;
     [SerializeField]
     float hitFreezeTimeIncrement;
-    public bool isFrozen = false;
-    
+
     float nextAttackTime;
     [SerializeField]
     float nextAttackTimeIncrement;
@@ -76,7 +83,7 @@ public class Mover : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     public int GetPlayerIndex()
@@ -102,7 +109,7 @@ public class Mover : MonoBehaviour
         var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
-    
+
     public void SetIsGathering(float buttonPress) //allows player to gather/pickup/steal the ball; actual gathering is done in the IdentifyGather script
     {
         if (buttonPress > 0) //if the button is being pressed down currently it will have a value of 0.001 to 1
@@ -114,9 +121,9 @@ public class Mover : MonoBehaviour
             isGathering = false;
         }
     }
-    
+
     public void DropBall()//drops the ball behinds the player relative to the direction they are facing and slows its movement while making its movement align with the player movement
-    {        
+    {
         Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
         hasBall = false;
         Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
@@ -134,7 +141,7 @@ public class Mover : MonoBehaviour
     }
 
     public float CalculateThrowForce(float throwHoldTime)//calculates what the throw force should be based on how long the throw has been charging for
-    {     
+    {
         holdTimeNormalised = Mathf.Clamp01(throwHoldTime / maxForceHoldDownTime);
         float force = holdTimeNormalised * maxThrowForce;
         force = force + minThrowForce;
@@ -154,14 +161,14 @@ public class Mover : MonoBehaviour
         float throwHoldTime = Time.time - throwHoldDownStartTime;
         ballsCollider.attachedRigidbody.velocity = this.gameObject.transform.right * CalculateThrowForce(throwHoldTime);
     }
+
     public void AttemptHit()
     {
-        if (Time.time > nextAttackTime) //check if they can attack again yet
-        {
-            isHitting = true;
-            isSwinging = true;
-            hitStartupTime = Time.time + hitStartupTimeIncrement; //set a time when an attack startup will go until (after which the attack will trigger)            
-            nextAttackTime = Time.time + nextAttackTimeIncrement; //set when they can swing again
+        if (attackState == AttackState.Idle) {
+            Debug.Log("State: " + attackState.ToString());
+            attackState = AttackState.Windup;
+            attackStateTime  = Time.time;
+            Debug.Log("Transitioned to: " + attackState.ToString());
         }
     }
 
@@ -175,8 +182,8 @@ public class Mover : MonoBehaviour
 
         //ATTACK ANIMATION/EFFECT
 
-        //DETECT ALL OTHER PLAYERS THAT ARE HIT   
-        //get player colliders hit by the polygon hit collider stored as a list        
+        //DETECT ALL OTHER PLAYERS THAT ARE HIT
+        //get player colliders hit by the polygon hit collider stored as a list
         List<Collider2D> hitPlayersFromPolygonCollider = new List<Collider2D>();
         LayerMask playerLayerMask = LayerMask.GetMask("Player");
         ContactFilter2D playerContactFilter = new ContactFilter2D();
@@ -203,7 +210,7 @@ public class Mover : MonoBehaviour
                 Mover playerMover = (Mover)playerCollider.gameObject.GetComponent(typeof(Mover));
                 playerMover.hasBall = false;
             }
-            //kill the players    
+            //kill the players
             if (playerCollider.name != this.gameObject.name)
             {
                 /*Vector2 direction = (playerCollider.transform.position - transform.position)*10000; //intended to shoot the player off the edge really fast like in advance wars so they could explode off the edge like in smash bros; couldnt get it to work
@@ -229,7 +236,7 @@ public class Mover : MonoBehaviour
         //get union of the above lists
         IEnumerable<Collider2D> unionOfBallHitBoxLists = hitBallsFromPolygonCollider.Union(hitBallsFromCircleCollider);
 
-        //SEND FORCES OUTWARDS TO AFFECT BALL  
+        //SEND FORCES OUTWARDS TO AFFECT BALL
         foreach (Collider2D ballCollider in unionOfBallHitBoxLists)
         {
             Vector2 direction = (ballCollider.transform.position - currentPlayerCircleCollider.transform.position);
@@ -240,7 +247,7 @@ public class Mover : MonoBehaviour
 
         //COMMENCE ATTACK FREEZE - PREVENTS PLAYER FROM DOING ANYTHING ELSE UNTIL FREEZETIME IS OVER
         hitFreezeTime = Time.time + hitFreezeTimeIncrement;
-        
+
     }
 
     private void KillPlayer(GameObject player)
@@ -263,7 +270,7 @@ public class Mover : MonoBehaviour
                 Mathf.Clamp(rigidbody2D.position.y, boundary.yMin, boundary.yMax)
             );
         }
-        
+
     }
 
     private void AimPlayer()
@@ -278,52 +285,28 @@ public class Mover : MonoBehaviour
         }
     }
 
-    void SetAttackState()
-    {
-        if (Time.time < hitStartupTime) //still starting up swing i.e. isSwinging
-        {
-            isSwinging = true;
-        }
-        else
-        {
-            isSwinging = false;
-        }
-
-        if (Time.time < hitFreezeTime) //hasn't finished the frozen time yet i.e. is frozen 
-        {
-            isFrozen = true;
-        }
-        else
-        {
-            isFrozen = false;
-        }
-
-        if (Time.time > nextAttackTime)
-        {
-            isHitting = false;
-        }
-    }
-
     private void Update()
     {
-        SetAttackState();
+        if (attackState == AttackState.Windup && Time.time >= attackStateTime + nextAttackTimeIncrement) {
+            Debug.Log("State: " + attackState.ToString());
+            Debug.Log("Attack!");
+            Attack();
+            attackState = AttackState.Backswing;
+            attackStateTime = Time.time;
+            Debug.Log("Transitioned to: " + attackState.ToString());
+        }
 
-        if(!isFrozen)
-        {
-            if(!isSwinging)
-            {
-                if(isHitting)
-                {
-                    Attack();
-                }
-            }
+        if (attackState == AttackState.Backswing && Time.time >= attackStateTime + nextAttackTimeIncrement) {
+            Debug.Log("State: " + attackState.ToString());
+            attackState = AttackState.Idle;
+            attackStateTime = Time.time;
+            Debug.Log("Transitioned to: " + attackState.ToString());
         }
     }
 
     void FixedUpdate()
     {
-        if (!isFrozen)
-        {
+        if (attackState != AttackState.Backswing) {
             MovePlayer();
             AimPlayer();
         }
