@@ -28,6 +28,21 @@ public class Mover : MonoBehaviour
     [SerializeField]
     float maxForceHoldDownTime;
 
+    float hitStartupTime;
+    [SerializeField]
+    float hitStartupTimeIncrement;
+    public bool isSwinging = false;
+
+    float hitFreezeTime;
+    [SerializeField]
+    float hitFreezeTimeIncrement;
+    public bool isFrozen = false;
+    
+    float nextAttackTime;
+    [SerializeField]
+    float nextAttackTimeIncrement;
+    public bool isHitting = false;
+
 
     private float throwHoldDownStartTime;
     private float holdTimeNormalised;
@@ -139,22 +154,32 @@ public class Mover : MonoBehaviour
         float throwHoldTime = Time.time - throwHoldDownStartTime;
         ballsCollider.attachedRigidbody.velocity = this.gameObject.transform.right * CalculateThrowForce(throwHoldTime);
     }
-
-    public void Attack()//hits in front of the player; any other players in the colliders in the Hitbox gameobject will die
+    public void AttemptHit()
     {
+        if (Time.time > nextAttackTime) //check if they can attack again yet
+        {
+            isHitting = true;
+            isSwinging = true;
+            hitStartupTime = Time.time + hitStartupTimeIncrement; //set a time when an attack startup will go until (after which the attack will trigger)            
+            nextAttackTime = Time.time + nextAttackTimeIncrement; //set when they can swing again
+        }
+    }
+
+    void Attack()//hits in front of the player; any other players in the colliders in the Hitbox gameobject will die
+    {
+        Debug.Log("1");
         Collider2D currentPlayerPolygonCollider = gameObject.FindComponentInChildWithTag<PolygonCollider2D>("Hitbox");
+        Debug.Log("2");
         Collider2D currentPlayerCircleCollider = gameObject.FindComponentInChildWithTag<CircleCollider2D>("Hitbox");
+        Debug.Log("3");
 
-        //Attack animation/effect
-
-        
-        
+        //ATTACK ANIMATION/EFFECT
 
         //DETECT ALL OTHER PLAYERS THAT ARE HIT   
         //get player colliders hit by the polygon hit collider stored as a list        
         List<Collider2D> hitPlayersFromPolygonCollider = new List<Collider2D>();
         LayerMask playerLayerMask = LayerMask.GetMask("Player");
-        ContactFilter2D playerContactFilter = new ContactFilter2D();        
+        ContactFilter2D playerContactFilter = new ContactFilter2D();
         playerContactFilter.SetLayerMask(playerLayerMask);//With this, the overlap collider will only detect colliders that have the "Player" layer on it, including the controlled player
         int polygonColliderCount = currentPlayerPolygonCollider.OverlapCollider(playerContactFilter, hitPlayersFromPolygonCollider);
 
@@ -172,7 +197,6 @@ public class Mover : MonoBehaviour
             Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(playerCollider.gameObject, "Ball");
             if (ballsCollider != null)
             {
-                Debug.Log("I did a thing!");
                 ballsCollider.attachedRigidbody.isKinematic = false;
                 ballsCollider.enabled = true;
                 ballsCollider.transform.parent = null;
@@ -186,12 +210,9 @@ public class Mover : MonoBehaviour
                 playerCollider.attachedRigidbody.AddForceAtPosition(direction, transform.position);*/
                 KillPlayer(playerCollider.gameObject);
             }
-            
         }
 
         //DEATH ANIMATIONS add: https://www.youtube.com/watch?v=uR2jcU3x3kU
-
-        //PROMPT RESPAWN OF THOSE PLAYERS
 
         //GET ALL BALLS THAT WILL BE HIT
         //get ball colliders hit by the polygon hit collider stored as a list
@@ -214,9 +235,12 @@ public class Mover : MonoBehaviour
             Vector2 direction = (ballCollider.transform.position - currentPlayerCircleCollider.transform.position);
             Debug.Log("Direction: " + direction.ToString());
             Debug.Log("Direction normalised: " + direction.normalized.ToString());
-            ballCollider.attachedRigidbody.AddForce(direction.normalized*hitStrengthMultiplier);
+            ballCollider.attachedRigidbody.AddForce(direction.normalized * hitStrengthMultiplier);
         }
 
+        //COMMENCE ATTACK FREEZE - PREVENTS PLAYER FROM DOING ANYTHING ELSE UNTIL FREEZETIME IS OVER
+        hitFreezeTime = Time.time + hitFreezeTimeIncrement;
+        
     }
 
     private void KillPlayer(GameObject player)
@@ -254,14 +278,54 @@ public class Mover : MonoBehaviour
         }
     }
 
+    void SetAttackState()
+    {
+        if (Time.time < hitStartupTime) //still starting up swing i.e. isSwinging
+        {
+            isSwinging = true;
+        }
+        else
+        {
+            isSwinging = false;
+        }
+
+        if (Time.time < hitFreezeTime) //hasn't finished the frozen time yet i.e. is frozen 
+        {
+            isFrozen = true;
+        }
+        else
+        {
+            isFrozen = false;
+        }
+
+        if (Time.time > nextAttackTime)
+        {
+            isHitting = false;
+        }
+    }
+
     private void Update()
     {
-        
+        SetAttackState();
+
+        if(!isFrozen)
+        {
+            if(!isSwinging)
+            {
+                if(isHitting)
+                {
+                    Attack();
+                }
+            }
+        }
     }
 
     void FixedUpdate()
     {
-        MovePlayer();
-        AimPlayer();        
+        if (!isFrozen)
+        {
+            MovePlayer();
+            AimPlayer();
+        }
     }
 }

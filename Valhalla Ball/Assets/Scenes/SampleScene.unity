@@ -603,6 +603,12 @@ MonoBehaviour:
   maxThrowForce: 80
   minThrowForce: 1
   maxForceHoldDownTime: 1
+  hitStartupTimeIncrement: 0.6
+  isSwinging: 0
+  hitFreezeTimeIncrement: 0.2
+  isFrozen: 0
+  nextAttackTimeIncrement: 1
+  isHitting: 0
   hitStrengthMultiplier: 5000
   boundary:
     xMin: -65.6
@@ -1118,6 +1124,12 @@ MonoBehaviour:
   maxThrowForce: 80
   minThrowForce: 1
   maxForceHoldDownTime: 1
+  hitStartupTimeIncrement: 0
+  isSwinging: 0
+  hitFreezeTimeIncrement: 0
+  isFrozen: 0
+  nextAttackTimeIncrement: 0
+  isHitting: 0
   hitStrengthMultiplier: 5000
   boundary:
     xMin: -65.6

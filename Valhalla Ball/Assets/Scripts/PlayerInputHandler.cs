@@ -73,12 +73,12 @@ public class PlayerInputHandler : MonoBehaviour
     {
         pressRBCounter++;
 
-        //Debug.Log("LB presses: " + pressCounterLB.ToString());
+        //Debug.Log("RB presses: " + pressCounterRB.ToString());
         if (mover != null)
         {
             if (pressRBCounter == 1) //onEntered: when button is first pressed
             {
-                mover.Attack();//
+                mover.AttemptHit();//
             }
             if (pressRBCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
             {
