@@ -306,7 +306,9 @@ public class Mover : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (attackState != AttackState.Backswing) {
             MovePlayer();
             AimPlayer();
+        }
     }
 }
