@@ -78,7 +78,15 @@ public class PlayerInputHandler : MonoBehaviour
         {
             if (pressRBCounter == 1) //onEntered: when button is first pressed
             {
+<<<<<<< Updated upstream
                 mover.AttemptHit();//
+=======
+                Debug.Log("attempting hit");
+                if (!mover.hasBall)
+                {
+                    mover.AttemptHit();//
+                }                
+>>>>>>> Stashed changes
             }
             if (pressRBCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
             {

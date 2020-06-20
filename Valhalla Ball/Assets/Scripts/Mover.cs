@@ -14,7 +14,7 @@ public class Boundary
 public class Mover : MonoBehaviour
 {
     [SerializeField]
-    private float MoveSpeed;
+    private float moveSpeed;
 
     public int playerIndex = 0;
     public int playerTeam = 0;
@@ -28,10 +28,16 @@ public class Mover : MonoBehaviour
     [SerializeField]
     float maxForceHoldDownTime;
 
+    private float throwHoldDownStartTime;
+    private float holdTimeNormalised;
+
     float hitStartupTime;
     [SerializeField]
     float hitStartupTimeIncrement;
+<<<<<<< Updated upstream
     public bool isSwinging = false;
+=======
+>>>>>>> Stashed changes
 
     float hitFreezeTime;
     [SerializeField]
@@ -43,9 +49,8 @@ public class Mover : MonoBehaviour
     float nextAttackTimeIncrement;
     public bool isHitting = false;
 
-
-    private float throwHoldDownStartTime;
-    private float holdTimeNormalised;
+    public AttackState attackState;
+    public float attackStateTime;
 
     private RespawnManager gameController;
     private new Rigidbody2D rigidbody2D;
@@ -156,12 +161,21 @@ public class Mover : MonoBehaviour
     }
     public void AttemptHit()
     {
+<<<<<<< Updated upstream
         if (Time.time > nextAttackTime) //check if they can attack again yet
         {
             isHitting = true;
             isSwinging = true;
             hitStartupTime = Time.time + hitStartupTimeIncrement; //set a time when an attack startup will go until (after which the attack will trigger)            
             nextAttackTime = Time.time + nextAttackTimeIncrement; //set when they can swing again
+=======
+        if (attackState == AttackState.Idle && Time.time >= attackStateTime + nextAttackTimeIncrement)
+        {
+            Debug.Log("State: " + attackState.ToString());
+            attackState = AttackState.Windup;
+            attackStateTime  = Time.time;
+            Debug.Log("Transitioned to: " + attackState.ToString());
+>>>>>>> Stashed changes
         }
     }
 
@@ -252,6 +266,7 @@ public class Mover : MonoBehaviour
     private void MovePlayer()
     {
         //move player in direction
+<<<<<<< Updated upstream
         if(rigidbody2D.isKinematic != true)
         {
             moveDirection = new Vector2(moveInputVector.x, moveInputVector.y);
@@ -264,6 +279,21 @@ public class Mover : MonoBehaviour
             );
         }
         
+=======
+     
+        moveDirection = new Vector2(moveInputVector.x, moveInputVector.y);
+        moveDirection = moveDirection * moveSpeed * Time.fixedDeltaTime;
+        rigidbody2D.velocity = moveDirection; //Need to change how this is done in order to freeze the player during the hit-freeze
+        if (attackState == AttackState.Backswing)
+            rigidbody2D.velocity = new Vector2(0, 0);
+
+        rigidbody2D.position = new Vector3
+        (
+            Mathf.Clamp(rigidbody2D.position.x, boundary.xMin, boundary.xMax),
+            Mathf.Clamp(rigidbody2D.position.y, boundary.yMin, boundary.yMax)
+        );
+
+>>>>>>> Stashed changes
     }
 
     private void AimPlayer()
@@ -280,6 +310,7 @@ public class Mover : MonoBehaviour
 
     void SetAttackState()
     {
+<<<<<<< Updated upstream
         if (Time.time < hitStartupTime) //still starting up swing i.e. isSwinging
         {
             isSwinging = true;
@@ -318,14 +349,37 @@ public class Mover : MonoBehaviour
                 }
             }
         }
+=======
+        if (attackState == AttackState.Windup && Time.time >= attackStateTime + hitStartupTimeIncrement) {
+            Debug.Log("State: " + attackState.ToString());
+            Debug.Log("Attack!");
+            Attack();
+            attackState = AttackState.Backswing;
+            attackStateTime = Time.time;
+            Debug.Log("Transitioned to: " + attackState.ToString());
+        }
+
+        if (attackState == AttackState.Backswing && Time.time >= attackStateTime + hitFreezeTimeIncrement) {
+            Debug.Log("State: " + attackState.ToString());
+            attackState = AttackState.Idle;
+            attackStateTime = Time.time;
+            Debug.Log("Transitioned to: " + attackState.ToString());
+        }   
+>>>>>>> Stashed changes
     }
 
     void FixedUpdate()
     {
+<<<<<<< Updated upstream
         if (!isFrozen)
+=======
+        rigidbody2D.velocity = new Vector2(0, 0);
+        if (attackState != AttackState.Backswing)
+>>>>>>> Stashed changes
         {
             MovePlayer();
             AimPlayer();
         }
+        
     }
 }

@@ -9,6 +9,11 @@ TagManager:
   - SpawnPoint
   - WhiteSpawnPoint
   - BlackSpawnPoint
+  - WhiteGoal
+  - BlackGoal
+  - WhiteScore
+  - BlackScore
+  - BallSpawnPoint
   layers:
   - Default
   - TransparentFX

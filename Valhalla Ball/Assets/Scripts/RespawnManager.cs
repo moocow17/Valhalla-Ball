@@ -5,7 +5,9 @@ using UnityEngine;
 public class RespawnManager : MonoBehaviour
 {
     [SerializeField]
-    private float respawnWaitTime;
+    private float playerRespawnWaitTime;
+    [SerializeField]
+    private float ballRespawnWaitTime;
 
     [SerializeField]
     private int whiteTeamNumber = 0;
@@ -14,11 +16,12 @@ public class RespawnManager : MonoBehaviour
 
     List<PlayerToRespawn> playersToRespawn = new List<PlayerToRespawn>();
     List<BallToRespawn> ballsToRespawn = new List<BallToRespawn>();
-    List<PlayerSpawnAllocation> whiteSpawnAllocations = new List<PlayerSpawnAllocation>();
-    List<PlayerSpawnAllocation> blackSpawnAllocations = new List<PlayerSpawnAllocation>();
+    /*List<PlayerSpawnAllocation> whiteSpawnAllocations = new List<PlayerSpawnAllocation>();
+    List<PlayerSpawnAllocation> blackSpawnAllocations = new List<PlayerSpawnAllocation>();*/
 
     public GameObject[] whiteSpawnLocations;
     public GameObject[] blackSpawnLocations;
+    public GameObject[] ballSpawnLocations;
 
     
 
@@ -28,6 +31,7 @@ public class RespawnManager : MonoBehaviour
         
         whiteSpawnLocations = GameObject.FindGameObjectsWithTag("WhiteSpawnPoint");
         blackSpawnLocations = GameObject.FindGameObjectsWithTag("BlackSpawnPoint");
+        ballSpawnLocations = GameObject.FindGameObjectsWithTag("BallSpawnPoint");
         /*for (int i = 0; i < whiteSpawnLocations.Length; i++)
         {
             PlayerSpawnAllocation playerSpawnAllocation = new PlayerSpawnAllocation();
@@ -75,7 +79,8 @@ public class RespawnManager : MonoBehaviour
                 }
                 else if (playersToRespawn[i].player.GetComponent<Mover>().playerTeam == blackTeamNumber)  //if the player was on black team
                 {
-                    int spawn = Random.Range(0, whiteSpawnLocations.Length);
+                    //figure out which black spawn point to allocate to
+                    int spawn = Random.Range(0, blackSpawnLocations.Length);
 
                     playersToRespawn[i].player.transform.position = blackSpawnLocations[spawn].transform.position;
                 }
@@ -87,7 +92,24 @@ public class RespawnManager : MonoBehaviour
 
     void RespawnBalls()
     {
+        //loop through balls, (loops backwards so i can remove easily without throwing exceptions)
+        for (int i = ballsToRespawn.Count - 1; i >= 0; i--)
+        {
+            //check if their respawn time is done, and if so, set them to active and make their transform coordinates the transform coordinates of a spawn point
+            //figure out a spawn point to allocate the player to //if want to improve this: (based on which team they are from, whether any players are allocated to a spot already and then which has least people around and then just the last one)
+            //remove them from the list
+            if (Time.time > ballsToRespawn[i].respawnTime)
+            {
+                //figure out which spawn point to allocate to
+                int spawn = Random.Range(0, ballSpawnLocations.Length);
 
+                ballsToRespawn[i].ball.transform.position = ballSpawnLocations[spawn].transform.position;
+
+                Debug.Log("BALL RESPAWN NOW");
+                ballsToRespawn[i].ball.gameObject.SetActive(true);
+                ballsToRespawn.Remove(ballsToRespawn[i]);
+            }
+        }
     }
 
     public void PrepPlayerRespawn(GameObject player)
@@ -95,14 +117,18 @@ public class RespawnManager : MonoBehaviour
         //add player to the playersToRespawn list
         PlayerToRespawn newlyDeceased = new PlayerToRespawn();
         newlyDeceased.player = player;
-        newlyDeceased.respawnTime = Time.time + respawnWaitTime;
+        newlyDeceased.respawnTime = Time.time + playerRespawnWaitTime;
         playersToRespawn.Add(newlyDeceased);
         
     }
 
-    public void PrepBallRespawn(GameObject ball, float timeOfScore)
+    public void PrepBallRespawn(GameObject ball)
     {
-
+        //add ball to the ballsToRespawn list
+        BallToRespawn scoredBall = new BallToRespawn();
+        scoredBall.ball = ball;
+        scoredBall.respawnTime = Time.time + ballRespawnWaitTime;
+        ballsToRespawn.Add(scoredBall);
     }
 }
 
@@ -110,7 +136,6 @@ public class PlayerToRespawn
 {
     public GameObject player { get; set; }
     public float respawnTime { get; set; }
-    public Vector2 respawnLocation { get; set; }
 }
 
 public class BallToRespawn
