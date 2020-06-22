@@ -923,13 +923,7 @@ MonoBehaviour:
   minThrowForce: 1
   maxForceHoldDownTime: 1
   hitStartupTimeIncrement: 0.6
-<<<<<<< Updated upstream
-  isSwinging: 0
   hitFreezeTimeIncrement: 0.2
-  isFrozen: 0
-=======
-  hitFreezeTimeIncrement: 0.2
->>>>>>> Stashed changes
   nextAttackTimeIncrement: 1
   isHitting: 0
   attackState: 0
@@ -1604,21 +1598,12 @@ MonoBehaviour:
   maxThrowForce: 80
   minThrowForce: 1
   maxForceHoldDownTime: 1
-<<<<<<< Updated upstream
-  hitStartupTimeIncrement: 0
-  isSwinging: 0
-  hitFreezeTimeIncrement: 0
-  isFrozen: 0
-  nextAttackTimeIncrement: 0
-  isHitting: 0
-=======
   hitStartupTimeIncrement: 0.7
   hitFreezeTimeIncrement: 0.2
   nextAttackTimeIncrement: 1
   isHitting: 0
   attackState: 0
   attackStateTime: 0
->>>>>>> Stashed changes
   hitStrengthMultiplier: 5000
   boundary:
     xMin: -65.6
