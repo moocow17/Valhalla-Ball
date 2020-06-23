@@ -137,16 +137,15 @@ public class PlayerInputHandler : MonoBehaviour
         {
             if (context.ReadValue<float>() > 0f) //onPressed (this could run an unknown amount of times)
             {
-
                 if (leftTriggerAlreadySuppressed == false) //used to make sure the action only runs once until this trigger is released
                 {
-                    
+                    mover.isBoosting = true;//set boosting to true
                 }
                 leftTriggerAlreadySuppressed = true;
             }
             else if (context.ReadValue<float>() == 0f) //onRelease
-            {
-                
+            {                
+                mover.isBoosting = false; //set boosting to false
                 leftTriggerAlreadySuppressed = false;
             }
         }

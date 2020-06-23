@@ -916,18 +916,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9e34253059523849ac43739ceb3c96d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotateSpeed: 500
   moveSpeed: 1000
   playerIndex: 0
   playerTeam: 0
   maxThrowForce: 80
   minThrowForce: 1
   maxForceHoldDownTime: 1
+  boostStrength: 1.5
+  boostCapacity: 3
+  maxBoostCapacity: 3
+  isBoosting: 0
   hitStartupTimeIncrement: 0.6
+  attackState: 0
+  attackStateTime: 0
   hitFreezeTimeIncrement: 0.2
   nextAttackTimeIncrement: 1
   isHitting: 0
-  attackState: 0
-  attackStateTime: 0
   hitStrengthMultiplier: 5000
   boundary:
     xMin: -65.6
@@ -1592,18 +1597,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9e34253059523849ac43739ceb3c96d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotateSpeed: 0
   moveSpeed: 1000
   playerIndex: 1
   playerTeam: 1
   maxThrowForce: 80
   minThrowForce: 1
   maxForceHoldDownTime: 1
+  boostStrength: 0
+  boostCapacity: 0
+  maxBoostCapacity: 0
+  isBoosting: 0
   hitStartupTimeIncrement: 0.7
+  attackState: 0
+  attackStateTime: 0
   hitFreezeTimeIncrement: 0.2
   nextAttackTimeIncrement: 1
   isHitting: 0
-  attackState: 0
-  attackStateTime: 0
   hitStrengthMultiplier: 5000
   boundary:
     xMin: -65.6

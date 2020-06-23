@@ -20,6 +20,9 @@ public enum AttackState
 public class Mover : MonoBehaviour
 {
     [SerializeField]
+    private float rotateSpeed;
+
+    [SerializeField]
     private float moveSpeed;
 
     public int playerIndex = 0;
@@ -36,6 +39,18 @@ public class Mover : MonoBehaviour
 
     private float throwHoldDownStartTime;
     private float holdTimeNormalised;
+
+    [SerializeField]
+    private float boostStrength;
+
+    [SerializeField]
+    private float boostCapacity;
+
+    [SerializeField]
+    private float maxBoostCapacity;
+
+    public bool isBoosting;
+
 
     float hitStartupTime;
     [SerializeField]
@@ -103,7 +118,7 @@ public class Mover : MonoBehaviour
         aimInputVector = direction;
     }
 
-    public static void LookAt2D(Transform transform, Vector2 target)
+    public static void LookAt2D(Transform transform, Vector2 target) //NOT USED CURRENTLY; IF ROTATION SPEED IS LIKED THEN CAN REMOVE
     {
         Vector2 current = transform.position;
         var direction = target - current;
@@ -262,11 +277,19 @@ public class Mover : MonoBehaviour
     {
         //move player in direction     
         moveDirection = new Vector2(moveInputVector.x, moveInputVector.y);
-        moveDirection = moveDirection * moveSpeed * Time.fixedDeltaTime;
-        rigidbody2D.velocity = moveDirection; //Need to change how this is done in order to freeze the player during the hit-freeze
-        if (attackState == AttackState.Backswing)
-            rigidbody2D.velocity = new Vector2(0, 0);
-
+        Vector2 boostDirection = transform.right;
+        if (isBoosting == true && boostCapacity > 0)
+        {
+            moveDirection = boostDirection * boostStrength * moveSpeed * Time.fixedDeltaTime;
+            boostCapacity -= Time.fixedDeltaTime;
+        }
+        else
+        {
+            moveDirection = moveDirection * moveSpeed * Time.fixedDeltaTime;
+        }
+        
+        rigidbody2D.velocity = moveDirection; 
+        
         rigidbody2D.position = new Vector3
         (
             Mathf.Clamp(rigidbody2D.position.x, boundary.xMin, boundary.xMax),
@@ -282,7 +305,15 @@ public class Mover : MonoBehaviour
             aimDirection = new Vector2(aimInputVector.x, aimInputVector.y);
             rigidbody2DPosition = rigidbody2D.transform.position;
             aimDirection = rigidbody2DPosition + aimDirection;
-            LookAt2D(rigidbody2D.transform, aimDirection);
+            //LookAt2D(rigidbody2D.transform, aimDirection);
+
+            Vector2 dir = aimDirection - rigidbody2DPosition;
+            float angle = Vector2.Angle(transform.right, dir);
+            if (angle > 5f)
+            {
+                float rDir = Mathf.Sign(Vector2.SignedAngle(transform.right, dir));
+                transform.Rotate(Vector3.forward * Time.deltaTime * rDir * rotateSpeed);
+            }
         }
     }
 
@@ -313,6 +344,16 @@ public class Mover : MonoBehaviour
             MovePlayer();
             AimPlayer();
         }
-        
+
+        if (!isBoosting)
+        {
+            if (boostCapacity <= maxBoostCapacity)
+            {
+                boostCapacity += Time.fixedDeltaTime;
+            }                
+        }
+
+        if (boostCapacity <= maxBoostCapacity)        
+            Debug.Log(boostCapacity.ToString());
     }
 }
