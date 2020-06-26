@@ -927,10 +927,10 @@ MonoBehaviour:
   boostCapacity: 3
   maxBoostCapacity: 3
   isBoosting: 0
-  hitStartupTimeIncrement: 0.6
-  attackState: 0
+  hitStartupTimeIncrement: 4
+  actionState: 0
   attackStateTime: 0
-  hitFreezeTimeIncrement: 0.2
+  hitFreezeTimeIncrement: 4
   nextAttackTimeIncrement: 1
   isHitting: 0
   hitStrengthMultiplier: 5000
@@ -1609,7 +1609,7 @@ MonoBehaviour:
   maxBoostCapacity: 0
   isBoosting: 0
   hitStartupTimeIncrement: 0.7
-  attackState: 0
+  actionState: 0
   attackStateTime: 0
   hitFreezeTimeIncrement: 0.2
   nextAttackTimeIncrement: 1

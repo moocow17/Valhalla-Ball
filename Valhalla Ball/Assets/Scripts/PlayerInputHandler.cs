@@ -118,7 +118,7 @@ public class PlayerInputHandler : MonoBehaviour
             }
             else if (context.ReadValue<float>() == 0f) //onRelease
             {
-                if (mover.hasBall == true) //if they DO have the ball then release the throw
+                if (mover.hasBall == true && mover.hasChargedThrow == true) //if they DO have the ball AND have already started charging a throw then release the throw
                 {
                     mover.ThrowBall();
                 }
@@ -139,13 +139,13 @@ public class PlayerInputHandler : MonoBehaviour
             {
                 if (leftTriggerAlreadySuppressed == false) //used to make sure the action only runs once until this trigger is released
                 {
-                    mover.isBoosting = true;//set boosting to true
+                    mover.StartBoosting();//set boosting to true
                 }
                 leftTriggerAlreadySuppressed = true;
             }
             else if (context.ReadValue<float>() == 0f) //onRelease
             {                
-                mover.isBoosting = false; //set boosting to false
+                mover.StopBoosting(); //set boosting to false
                 leftTriggerAlreadySuppressed = false;
             }
         }

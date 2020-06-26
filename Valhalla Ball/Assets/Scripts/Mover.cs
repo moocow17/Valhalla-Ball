@@ -10,11 +10,11 @@ public class Boundary
     public float xMin, xMax, yMin, yMax;
 }
 
-public enum AttackState
+public enum ActionState
 {
     Idle,
-    Windup,
-    Backswing
+    AttackWindup,
+    AttackBackswing,
 }
 
 public class Mover : MonoBehaviour
@@ -56,7 +56,7 @@ public class Mover : MonoBehaviour
     [SerializeField]
     float hitStartupTimeIncrement;
 
-    public AttackState attackState;
+    public ActionState actionState;
     public float attackStateTime;
     //public bool isSwinging = false;
 
@@ -87,6 +87,7 @@ public class Mover : MonoBehaviour
 
     public bool isGathering = false;
     public bool hasBall = false;
+    public bool hasChargedThrow = false;
 
     private void Awake()
     {
@@ -130,7 +131,11 @@ public class Mover : MonoBehaviour
     {
         if (buttonPress > 0) //if the button is being pressed down currently it will have a value of 0.001 to 1
         {
-            isGathering = true;
+            if (actionState == ActionState.Idle)
+            {
+                Debug.Log("Gathering");
+                isGathering = true;
+            }                
         }
         else
         {
@@ -139,7 +144,8 @@ public class Mover : MonoBehaviour
     }
     
     public void DropBall()//drops the ball behinds the player relative to the direction they are facing and slows its movement while making its movement align with the player movement
-    {        
+    {
+        Debug.Log("Dropping");
         Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
         hasBall = false;
         Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
@@ -149,11 +155,17 @@ public class Mover : MonoBehaviour
         ballObjectTransform.parent = null;
         ballsCollider.attachedRigidbody.velocity = rigidbody2D.velocity * 0.1f;
         isGathering = false;
+        hasChargedThrow = false;
     }
 
     public void ChargeThrow()//Gets the time which the player started charging a throw
     {
-        throwHoldDownStartTime = Time.time;
+        Debug.Log("Charging throw");
+        if(isBoosting == false && actionState == ActionState.Idle)
+        {
+            throwHoldDownStartTime = Time.time;
+            hasChargedThrow = true;
+        }        
     }
 
     public float CalculateThrowForce(float throwHoldTime)//calculates what the throw force should be based on how long the throw has been charging for
@@ -167,35 +179,36 @@ public class Mover : MonoBehaviour
 
     public void ThrowBall()//throws the ball infront of the player relative to the direction they are facing and changes its velocity based on how long the throw button was held for
     {
-        Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
-        hasBall = false;
-        Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
-        ballsCollider.attachedRigidbody.isKinematic = false;
-        ballsCollider.enabled = true;
-        ballObjectTransform.position = this.gameObject.transform.position + (this.gameObject.transform.right * dropPointDistance);
-        ballObjectTransform.parent = null;
-        float throwHoldTime = Time.time - throwHoldDownStartTime;
-        ballsCollider.attachedRigidbody.velocity = this.gameObject.transform.right * CalculateThrowForce(throwHoldTime);
+        if(hasChargedThrow)
+        {
+            Debug.Log("Throwing");
+            Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
+            hasBall = false;
+            Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
+            ballsCollider.attachedRigidbody.isKinematic = false;
+            ballsCollider.enabled = true;
+            ballObjectTransform.position = this.gameObject.transform.position + (this.gameObject.transform.right * dropPointDistance);
+            ballObjectTransform.parent = null;
+            float throwHoldTime = Time.time - throwHoldDownStartTime;
+            ballsCollider.attachedRigidbody.velocity = this.gameObject.transform.right * CalculateThrowForce(throwHoldTime);
+            hasChargedThrow = false;
+        }        
     }
 
     public void AttemptHit()
     {
-        if (attackState == AttackState.Idle && Time.time >= attackStateTime + nextAttackTimeIncrement)
+        if (actionState == ActionState.Idle && Time.time >= attackStateTime + nextAttackTimeIncrement && isBoosting == false && hasChargedThrow == false && isGathering == false)
         {
-            Debug.Log("State: " + attackState.ToString());
-            attackState = AttackState.Windup;
+            Debug.Log("Attack-Windup");
+            actionState = ActionState.AttackWindup;
             attackStateTime  = Time.time;
-            Debug.Log("Transitioned to: " + attackState.ToString());
         }
     }
 
     void Attack()//hits in front of the player; any other players in the colliders in the Hitbox gameobject will die
     {
-        Debug.Log("1");
         Collider2D currentPlayerPolygonCollider = gameObject.FindComponentInChildWithTag<PolygonCollider2D>("Hitbox");
-        Debug.Log("2");
         Collider2D currentPlayerCircleCollider = gameObject.FindComponentInChildWithTag<CircleCollider2D>("Hitbox");
-        Debug.Log("3");
 
         //ATTACK ANIMATION/EFFECT
 
@@ -257,8 +270,6 @@ public class Mover : MonoBehaviour
         foreach (Collider2D ballCollider in unionOfBallHitBoxLists)
         {
             Vector2 direction = (ballCollider.transform.position - currentPlayerCircleCollider.transform.position);
-            Debug.Log("Direction: " + direction.ToString());
-            Debug.Log("Direction normalised: " + direction.normalized.ToString());
             ballCollider.attachedRigidbody.AddForce(direction.normalized * hitStrengthMultiplier);
         }
 
@@ -273,6 +284,19 @@ public class Mover : MonoBehaviour
         gameController.PrepPlayerRespawn(player);
     }
 
+    public void StartBoosting()
+    {
+        if (actionState != ActionState.AttackWindup && actionState != ActionState.AttackBackswing && hasChargedThrow == false)
+        {
+            isBoosting = true;
+        }
+    }
+
+    public void StopBoosting()
+    {
+        isBoosting = false;
+    }
+
     private void MovePlayer()
     {
         //move player in direction     
@@ -280,6 +304,7 @@ public class Mover : MonoBehaviour
         Vector2 boostDirection = transform.right;
         if (isBoosting == true && boostCapacity > 0)
         {
+            Debug.Log("Boosting");
             moveDirection = boostDirection * boostStrength * moveSpeed * Time.fixedDeltaTime;
             boostCapacity -= Time.fixedDeltaTime;
         }
@@ -319,27 +344,25 @@ public class Mover : MonoBehaviour
 
     private void Update()
     {
-        if (attackState == AttackState.Windup && Time.time >= attackStateTime + hitStartupTimeIncrement) {
-            Debug.Log("State: " + attackState.ToString());
-            Debug.Log("Attack!");
+        if (actionState == ActionState.AttackWindup && Time.time >= attackStateTime + hitStartupTimeIncrement)
+        {
             Attack();
-            attackState = AttackState.Backswing;
+            Debug.Log("Attack-Backswing");
+            actionState = ActionState.AttackBackswing;
             attackStateTime = Time.time;
-            Debug.Log("Transitioned to: " + attackState.ToString());
         }
 
-        if (attackState == AttackState.Backswing && Time.time >= attackStateTime + hitFreezeTimeIncrement) {
-            Debug.Log("State: " + attackState.ToString());
-            attackState = AttackState.Idle;
+        if (actionState == ActionState.AttackBackswing && Time.time >= attackStateTime + hitFreezeTimeIncrement)
+        {
+            actionState = ActionState.Idle;
             attackStateTime = Time.time;
-            Debug.Log("Transitioned to: " + attackState.ToString());
         }   
     }
 
     void FixedUpdate()
     {
         rigidbody2D.velocity = new Vector2(0, 0);
-        if (attackState != AttackState.Backswing)
+        if (actionState != ActionState.AttackBackswing)
         {
             MovePlayer();
             AimPlayer();
@@ -349,11 +372,8 @@ public class Mover : MonoBehaviour
         {
             if (boostCapacity <= maxBoostCapacity)
             {
-                boostCapacity += Time.fixedDeltaTime;
+                boostCapacity += Time.fixedDeltaTime; //replenish boost power when not boosting
             }                
         }
-
-        if (boostCapacity <= maxBoostCapacity)        
-            Debug.Log(boostCapacity.ToString());
     }
 }

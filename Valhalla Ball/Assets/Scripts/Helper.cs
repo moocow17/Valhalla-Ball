@@ -16,7 +16,7 @@ public static class Helper
                 return tr.GetComponent<T>();                
             }
         }
-        Debug.Log("Returned null");
+        //Debug.Log("Returned null");
         return null;
     }
 }
