@@ -51,6 +51,19 @@ public class Mover : MonoBehaviour
 
     public bool isBoosting;
 
+    public GameObject preHitChargePrefab;
+    GameObject preHitParticles;
+    public GameObject hitPrefab;
+    GameObject hitParticles;
+    public GameObject deathParticlesPrefab;
+    GameObject deathParticles;
+
+
+
+    [SerializeField]
+    private float hitPointDistance = 2.0f;
+    [SerializeField]
+    private float preHitPointDistance = 3.0f;
 
     float hitStartupTime;
     [SerializeField]
@@ -133,7 +146,6 @@ public class Mover : MonoBehaviour
         {
             if (actionState == ActionState.Idle)
             {
-                Debug.Log("Gathering");
                 isGathering = true;
             }                
         }
@@ -145,7 +157,6 @@ public class Mover : MonoBehaviour
     
     public void DropBall()//drops the ball behinds the player relative to the direction they are facing and slows its movement while making its movement align with the player movement
     {
-        Debug.Log("Dropping");
         Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
         hasBall = false;
         Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
@@ -160,7 +171,6 @@ public class Mover : MonoBehaviour
 
     public void ChargeThrow()//Gets the time which the player started charging a throw
     {
-        Debug.Log("Charging throw");
         if(isBoosting == false && actionState == ActionState.Idle)
         {
             throwHoldDownStartTime = Time.time;
@@ -173,7 +183,6 @@ public class Mover : MonoBehaviour
         holdTimeNormalised = Mathf.Clamp01(throwHoldTime / maxForceHoldDownTime);
         float force = holdTimeNormalised * maxThrowForce;
         force = force + minThrowForce;
-        Debug.Log("Throw Hold time: " + throwHoldTime.ToString() + ", Normalised Hold Time: " + holdTimeNormalised + ", Throw force: " + force.ToString());
         return force;
     }
 
@@ -181,7 +190,6 @@ public class Mover : MonoBehaviour
     {
         if(hasChargedThrow)
         {
-            Debug.Log("Throwing");
             Collider2D ballsCollider = Helper.FindComponentInChildWithTag<Collider2D>(this.gameObject, "Ball");
             hasBall = false;
             Transform ballObjectTransform = Helper.FindComponentInChildWithTag<Transform>(this.gameObject, "Ball");
@@ -199,9 +207,15 @@ public class Mover : MonoBehaviour
     {
         if (actionState == ActionState.Idle && Time.time >= attackStateTime + nextAttackTimeIncrement && isBoosting == false && hasChargedThrow == false && isGathering == false)
         {
-            Debug.Log("Attack-Windup");
             actionState = ActionState.AttackWindup;
             attackStateTime  = Time.time;
+
+
+            //PRE-ATTACK ANIMATION/EFFECT            
+            preHitParticles = Instantiate(preHitChargePrefab, transform.position + (transform.right * preHitPointDistance), transform.rotation) as GameObject;
+            preHitParticles.transform.parent = transform;
+
+            
         }
     }
 
@@ -210,7 +224,8 @@ public class Mover : MonoBehaviour
         Collider2D currentPlayerPolygonCollider = gameObject.FindComponentInChildWithTag<PolygonCollider2D>("Hitbox");
         Collider2D currentPlayerCircleCollider = gameObject.FindComponentInChildWithTag<CircleCollider2D>("Hitbox");
 
-        //ATTACK ANIMATION/EFFECT
+        //ATTACK ANIMATION/EFFECT 
+        hitParticles = Instantiate(hitPrefab, transform.position + (transform.right * hitPointDistance), transform.rotation) as GameObject;
 
         //DETECT ALL OTHER PLAYERS THAT ARE HIT   
         //get player colliders hit by the polygon hit collider stored as a list        
@@ -241,15 +256,13 @@ public class Mover : MonoBehaviour
                 playerMover.hasBall = false;
             }
             //kill the players    
-            if (playerCollider.name != this.gameObject.name)
+            if (playerCollider.gameObject.GetComponent<Mover>().playerIndex != this.playerIndex) //playerCollider.name != this.gameObject.name)
             {
                 /*Vector2 direction = (playerCollider.transform.position - transform.position)*10000; //intended to shoot the player off the edge really fast like in advance wars so they could explode off the edge like in smash bros; couldnt get it to work
                 playerCollider.attachedRigidbody.AddForceAtPosition(direction, transform.position);*/
                 KillPlayer(playerCollider.gameObject);
             }
-        }
-
-        //DEATH ANIMATIONS add: https://www.youtube.com/watch?v=uR2jcU3x3kU
+        }        
 
         //GET ALL BALLS THAT WILL BE HIT
         //get ball colliders hit by the polygon hit collider stored as a list
@@ -278,10 +291,14 @@ public class Mover : MonoBehaviour
         
     }
 
-    private void KillPlayer(GameObject player)
+    public void KillPlayer(GameObject player)
     {
+        //DEATH ANIMATIONS add: https://www.youtube.com/watch?v=uR2jcU3x3kU
+        deathParticles = Instantiate(deathParticlesPrefab, player.transform.position, player.transform.rotation) as GameObject;
         player.SetActive(false);
         gameController.PrepPlayerRespawn(player);
+        hitParticles.transform.parent = null;
+        preHitParticles.transform.parent = null;        
     }
 
     public void StartBoosting()

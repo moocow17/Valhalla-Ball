@@ -9,6 +9,9 @@ public class Goal : MonoBehaviour
     public ScoreManager scoreManager;
     private RespawnManager respawnManager;
 
+    public GameObject goalScorePrefab;
+    GameObject goalScoreParticles;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,10 +42,12 @@ public class Goal : MonoBehaviour
         {
             Mover playerMover = (Mover)collision.gameObject.GetComponent(typeof(Mover));
 
-            GameObject otherPlayerGameObject = playerMover.gameObject;
+            
             if (playerMover.hasBall && playerMover.playerTeam != goalTeam)
             {
                 Score(playerMover);
+                GameObject playerGameObject = playerMover.gameObject;
+                playerMover.KillPlayer(playerGameObject);
             }
         }
     }
@@ -53,6 +58,7 @@ public class Goal : MonoBehaviour
         GameObject ballObject = ballCollider.gameObject;
         Transform ballObjectTransform = ballObject.transform;
 
+        goalScoreParticles = Instantiate(goalScorePrefab, transform.position, transform.rotation) as GameObject;
 
         scorer.hasBall = false;
 
