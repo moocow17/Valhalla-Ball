@@ -5,17 +5,23 @@ using UnityEngine.UI;
 
 public class ScoreManager : MonoBehaviour
 {
+    private GameController gameController;
+
     int whiteScore;
     int blackScore;
+    public int whiteGoalsToWin = 5;
+    public int blackGoalsToWin = 5;
+
+    string winner;
 
     Text whiteScoreText;
-    Text[] scoreTexts;
     Text blackScoreText;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        gameController = GetComponent<GameController>();
         whiteScoreText = GameObject.Find("WhiteScore").GetComponent<Text>();
         blackScoreText = GameObject.Find("BlackScore").GetComponent<Text>();
         whiteScore = 0;
@@ -38,5 +44,16 @@ public class ScoreManager : MonoBehaviour
 
         whiteScoreText.text = whiteScore.ToString();
         blackScoreText.text = blackScore.ToString();
+
+        if(blackScore == blackGoalsToWin)
+        {
+            winner = "BLACK";
+            gameController.EndGame(winner);
+        }
+        else if(whiteScore == whiteGoalsToWin)
+        {
+            winner = "WHITE";
+            gameController.EndGame(winner);
+        }
     }
 }

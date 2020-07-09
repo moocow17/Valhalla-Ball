@@ -9,13 +9,22 @@ public class PlayerInputHandler : MonoBehaviour
 {
     private PlayerInput playerInput;
     private Mover mover;
+
+    private GameController gameController;
+
+    private int pressButtonSouthCounter = 0;
+    private int pressButtonWestCounter = 0;
+
     private int pressRBCounter = 0;
     private int pressLBCounter = 0;
     private bool rightTriggerAlreadySuppressed = false;
     private bool leftTriggerAlreadySuppressed = false;
 
+
     private void Awake()
     {
+        GameObject gameControllerObject = GameObject.FindWithTag("GameController");
+        gameController = gameControllerObject.GetComponent<GameController>();
         playerInput = GetComponent<PlayerInput>();
         var movers = FindObjectsOfType<Mover>(); 
         var index = playerInput.playerIndex;
@@ -35,6 +44,56 @@ public class PlayerInputHandler : MonoBehaviour
         if (mover != null)
         {
             mover.SetAimInputVector(context.ReadValue<Vector2>());
+        }
+    }
+
+    public void OnButtonWest(CallbackContext context) //A button on xbox controller
+    {
+
+        pressButtonSouthCounter++;
+
+        if (mover != null)
+        {
+            if (pressButtonSouthCounter == 1) //onEntered: when button is first pressed
+            {
+                if(gameController.gamePlaying == false)
+                {
+                    gameController.RestartGame();
+                }
+            }
+            if (pressButtonSouthCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
+            {
+
+            }
+            if (pressButtonSouthCounter == 3) //onRelease: when button is released
+            {
+                pressButtonSouthCounter = 0; //on release prep it so the next press takes them to onEntered again
+            }
+        }
+    }
+
+    public void OnButtonSouth(CallbackContext context) //X button on xbox controller
+    {
+
+        pressButtonSouthCounter++;
+
+        if (mover != null)
+        {
+            if (pressButtonSouthCounter == 1) //onEntered: when button is first pressed
+            {
+                if (gameController.gamePlaying == false)
+                {
+                    gameController.RestartGame();
+                }
+            }
+            if (pressButtonSouthCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
+            {
+                
+            }
+            if (pressButtonSouthCounter == 3) //onRelease: when button is released
+            {
+                pressButtonSouthCounter = 0; //on release prep it so the next press takes them to onEntered again
+            }
         }
     }
 

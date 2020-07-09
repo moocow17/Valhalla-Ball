@@ -5,7 +5,8 @@ using UnityEngine;
 public class RespawnManager : MonoBehaviour
 {
     public int numOfPlayers = 8;
-    public int goalsToWin = 5; 
+
+    private GameController gameController;
 
     [SerializeField]
     private float playerRespawnWaitTime;
@@ -47,6 +48,8 @@ public class RespawnManager : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        gameController = GetComponent<GameController>();
+
         whiteSpawnLocations = GameObject.FindGameObjectsWithTag("WhiteSpawnPoint");
         blackSpawnLocations = GameObject.FindGameObjectsWithTag("BlackSpawnPoint");
         ballSpawnLocations = GameObject.FindGameObjectsWithTag("BallSpawnPoint");
@@ -117,8 +120,6 @@ public class RespawnManager : MonoBehaviour
             newPlayer.respawnTime = 0;
             playersToRespawn.Add(newPlayer);
         }
-
-        //RespawnPlayers();
     }
 
     // Update is called once per frame
@@ -214,20 +215,34 @@ public class RespawnManager : MonoBehaviour
     public void PrepPlayerRespawn(GameObject player)
     {
         //add player to the playersToRespawn list
-        PlayerToRespawn newlyDeceased = new PlayerToRespawn();
-        newlyDeceased.player = player;
-        newlyDeceased.respawnTime = Time.time + playerRespawnWaitTime;
-        playersToRespawn.Add(newlyDeceased);
-        
+        if(gameController.gamePlaying)
+        {
+            PlayerToRespawn newlyDeceased = new PlayerToRespawn();
+            newlyDeceased.player = player;
+            newlyDeceased.respawnTime = Time.time + playerRespawnWaitTime;
+            playersToRespawn.Add(newlyDeceased);
+        }
     }
 
     public void PrepBallRespawn(GameObject ball)
     {
-        //add ball to the ballsToRespawn list
-        BallToRespawn scoredBall = new BallToRespawn();
-        scoredBall.ball = ball;
-        scoredBall.respawnTime = Time.time + ballRespawnWaitTime;
-        ballsToRespawn.Add(scoredBall);
+        if (gameController.gamePlaying)
+        {
+            //add ball to the ballsToRespawn list
+            BallToRespawn scoredBall = new BallToRespawn();
+            scoredBall.ball = ball;
+            scoredBall.respawnTime = Time.time + ballRespawnWaitTime;
+            ballsToRespawn.Add(scoredBall);
+        }
+    }
+
+    public void DestroyAllPlayers()
+    {
+        //loop for the number of players            
+        for (int i = 0; i < numOfPlayers; i++)
+        {
+            playerMovers[i].KillPlayer(players[i]);
+        }
     }
 }
 

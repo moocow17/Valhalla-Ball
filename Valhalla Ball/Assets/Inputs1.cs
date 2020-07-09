@@ -65,6 +65,22 @@ public class @Inputs1 : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""X (xbox) Button"",
+                    ""type"": ""Button"",
+                    ""id"": ""ee66d279-448b-4a06-aa75-5d3ee0aab4e6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""A (xbox) Button"",
+                    ""type"": ""Button"",
+                    ""id"": ""4e37daed-0193-483b-b96b-c6a13933bc8e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -133,6 +149,28 @@ public class @Inputs1 : IInputActionCollection, IDisposable
                     ""action"": ""L Trigger"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9cf370b-272a-499c-94f3-93e61a1e3b7f"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""X (xbox) Button"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0b2d83ee-ced2-41d1-9d54-31a9326135fa"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""A (xbox) Button"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -147,6 +185,8 @@ public class @Inputs1 : IInputActionCollection, IDisposable
         m_Player_LBumper = m_Player.FindAction("L Bumper", throwIfNotFound: true);
         m_Player_RTrigger = m_Player.FindAction("R Trigger", throwIfNotFound: true);
         m_Player_RBumper = m_Player.FindAction("R Bumper", throwIfNotFound: true);
+        m_Player_XxboxButton = m_Player.FindAction("X (xbox) Button", throwIfNotFound: true);
+        m_Player_AxboxButton = m_Player.FindAction("A (xbox) Button", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -202,6 +242,8 @@ public class @Inputs1 : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_LBumper;
     private readonly InputAction m_Player_RTrigger;
     private readonly InputAction m_Player_RBumper;
+    private readonly InputAction m_Player_XxboxButton;
+    private readonly InputAction m_Player_AxboxButton;
     public struct PlayerActions
     {
         private @Inputs1 m_Wrapper;
@@ -212,6 +254,8 @@ public class @Inputs1 : IInputActionCollection, IDisposable
         public InputAction @LBumper => m_Wrapper.m_Player_LBumper;
         public InputAction @RTrigger => m_Wrapper.m_Player_RTrigger;
         public InputAction @RBumper => m_Wrapper.m_Player_RBumper;
+        public InputAction @XxboxButton => m_Wrapper.m_Player_XxboxButton;
+        public InputAction @AxboxButton => m_Wrapper.m_Player_AxboxButton;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -239,6 +283,12 @@ public class @Inputs1 : IInputActionCollection, IDisposable
                 @RBumper.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRBumper;
                 @RBumper.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRBumper;
                 @RBumper.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRBumper;
+                @XxboxButton.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnXxboxButton;
+                @XxboxButton.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnXxboxButton;
+                @XxboxButton.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnXxboxButton;
+                @AxboxButton.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAxboxButton;
+                @AxboxButton.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAxboxButton;
+                @AxboxButton.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAxboxButton;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -261,6 +311,12 @@ public class @Inputs1 : IInputActionCollection, IDisposable
                 @RBumper.started += instance.OnRBumper;
                 @RBumper.performed += instance.OnRBumper;
                 @RBumper.canceled += instance.OnRBumper;
+                @XxboxButton.started += instance.OnXxboxButton;
+                @XxboxButton.performed += instance.OnXxboxButton;
+                @XxboxButton.canceled += instance.OnXxboxButton;
+                @AxboxButton.started += instance.OnAxboxButton;
+                @AxboxButton.performed += instance.OnAxboxButton;
+                @AxboxButton.canceled += instance.OnAxboxButton;
             }
         }
     }
@@ -273,5 +329,7 @@ public class @Inputs1 : IInputActionCollection, IDisposable
         void OnLBumper(InputAction.CallbackContext context);
         void OnRTrigger(InputAction.CallbackContext context);
         void OnRBumper(InputAction.CallbackContext context);
+        void OnXxboxButton(InputAction.CallbackContext context);
+        void OnAxboxButton(InputAction.CallbackContext context);
     }
 }

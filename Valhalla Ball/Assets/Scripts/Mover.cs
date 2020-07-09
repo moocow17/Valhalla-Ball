@@ -83,7 +83,9 @@ public class Mover : MonoBehaviour
     float nextAttackTimeIncrement;
     public bool isHitting = false;
 
-    private RespawnManager gameController;
+    private RespawnManager respawnManager;
+    private GameController gameController;
+
     private new Rigidbody2D rigidbody2D;
     private new GameObject gameObject;
 
@@ -107,7 +109,8 @@ public class Mover : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
         gameObject = rigidbody2D.gameObject;
         GameObject gameControllerObject = GameObject.FindWithTag("GameController");
-        gameController = gameControllerObject.GetComponent<RespawnManager>();
+        respawnManager = gameControllerObject.GetComponent<RespawnManager>();
+        gameController = gameControllerObject.GetComponent<GameController>();
     }
 
     // Start is called before the first frame update
@@ -293,12 +296,15 @@ public class Mover : MonoBehaviour
 
     public void KillPlayer(GameObject player)
     {
-        //DEATH ANIMATIONS add: https://www.youtube.com/watch?v=uR2jcU3x3kU
         deathParticles = Instantiate(deathParticlesPrefab, player.transform.position, player.transform.rotation) as GameObject;
+        Mover playerMover = (Mover)player.GetComponent(typeof(Mover));
+        /*if (playerMover.hitParticles.transform.parent != null)
+        {
+            playerMover.hitParticles.transform.parent = null;
+        }  */     
+
         player.SetActive(false);
-        gameController.PrepPlayerRespawn(player);
-        hitParticles.transform.parent = null;
-        preHitParticles.transform.parent = null;        
+        respawnManager.PrepPlayerRespawn(player); 
     }
 
     public void StartBoosting()
@@ -361,36 +367,41 @@ public class Mover : MonoBehaviour
 
     private void Update()
     {
-        if (actionState == ActionState.AttackWindup && Time.time >= attackStateTime + hitStartupTimeIncrement)
+        if(gameController.gamePlaying == true)
         {
-            Attack();
-            Debug.Log("Attack-Backswing");
-            actionState = ActionState.AttackBackswing;
-            attackStateTime = Time.time;
-        }
+            if (actionState == ActionState.AttackWindup && Time.time >= attackStateTime + hitStartupTimeIncrement)
+            {
+                Attack();
+                actionState = ActionState.AttackBackswing;
+                attackStateTime = Time.time;
+            }
 
-        if (actionState == ActionState.AttackBackswing && Time.time >= attackStateTime + hitFreezeTimeIncrement)
-        {
-            actionState = ActionState.Idle;
-            attackStateTime = Time.time;
-        }   
+            if (actionState == ActionState.AttackBackswing && Time.time >= attackStateTime + hitFreezeTimeIncrement)
+            {
+                actionState = ActionState.Idle;
+                attackStateTime = Time.time;
+            }
+        }        
     }
 
     void FixedUpdate()
     {
-        rigidbody2D.velocity = new Vector2(0, 0);
-        if (actionState != ActionState.AttackBackswing)
+        if (gameController.gamePlaying == true)
         {
-            MovePlayer();
-            AimPlayer();
-        }
-
-        if (!isBoosting)
-        {
-            if (boostCapacity <= maxBoostCapacity)
+            rigidbody2D.velocity = new Vector2(0, 0);
+            if (actionState != ActionState.AttackBackswing)
             {
-                boostCapacity += Time.fixedDeltaTime; //replenish boost power when not boosting
-            }                
-        }
+                MovePlayer();
+                AimPlayer();
+            }
+
+            if (!isBoosting)
+            {
+                if (boostCapacity <= maxBoostCapacity)
+                {
+                    boostCapacity += Time.fixedDeltaTime; //replenish boost power when not boosting
+                }
+            }
+        }       
     }
 }
