@@ -50,24 +50,27 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnButtonWest(CallbackContext context) //A button on xbox controller
     {
 
-        pressButtonSouthCounter++;
+        pressButtonWestCounter++;
 
         if (mover != null)
         {
-            if (pressButtonSouthCounter == 1) //onEntered: when button is first pressed
+            if (pressButtonWestCounter == 1) //onEntered: when button is first pressed
             {
                 if(gameController.gamePlaying == false)
                 {
-                    gameController.RestartGame();
+                    if (pressButtonSouthCounter > 0)
+                    {
+                        gameController.RestartGame();
+                    }
                 }
             }
-            if (pressButtonSouthCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
+            if (pressButtonWestCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released
             {
 
             }
-            if (pressButtonSouthCounter == 3) //onRelease: when button is released
+            if (pressButtonWestCounter == 3) //onRelease: when button is released
             {
-                pressButtonSouthCounter = 0; //on release prep it so the next press takes them to onEntered again
+                pressButtonWestCounter = 0; //on release prep it so the next press takes them to onEntered again
             }
         }
     }
@@ -83,7 +86,10 @@ public class PlayerInputHandler : MonoBehaviour
             {
                 if (gameController.gamePlaying == false)
                 {
-                    gameController.RestartGame();
+                    if (pressButtonWestCounter > 0)
+                    {
+                        gameController.RestartGame();
+                    }
                 }
             }
             if (pressButtonSouthCounter == 2) //onPressed: when button is first pressed but after onEntered; if you hold down button it wont do anything further until released

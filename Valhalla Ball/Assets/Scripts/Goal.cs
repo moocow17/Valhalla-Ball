@@ -6,6 +6,7 @@ public class Goal : MonoBehaviour
 {
     public int goalTeam;
 
+    [HideInInspector]
     public ScoreManager scoreManager;
     private RespawnManager respawnManager;
 
