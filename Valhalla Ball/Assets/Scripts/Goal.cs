@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using MilkShake;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ public class Goal : MonoBehaviour
 
     public GameObject goalScorePrefab;
     GameObject goalScoreParticles;
+    public ShakePreset explosionShakePreset;
+    public ShakePreset bigExplosionShakePreset;
 
     // Start is called before the first frame update
     void Start()
@@ -59,7 +62,14 @@ public class Goal : MonoBehaviour
         GameObject ballObject = ballCollider.gameObject;
         Transform ballObjectTransform = ballObject.transform;
 
+        //SOUND EFFECT
+        AudioManager.instance.Play("ImplosionExplosion", 1f, 1f, false);
+
+        //PARTICLE EFFECT
         goalScoreParticles = Instantiate(goalScorePrefab, transform.position, transform.rotation) as GameObject;
+
+        //SHAKE EFFECT
+        StartCoroutine(GoalShake());
 
         scorer.hasBall = false;
 
@@ -70,5 +80,15 @@ public class Goal : MonoBehaviour
         respawnManager.PrepBallRespawn(ballObject);
 
         scoreManager.UpdateScore(this);
+    }
+
+    IEnumerator GoalShake()
+    {
+        Shaker.ShakeAll(explosionShakePreset);
+
+        yield return new WaitForSeconds(2.4f);
+
+        Shaker.ShakeAll(bigExplosionShakePreset);
+
     }
 }

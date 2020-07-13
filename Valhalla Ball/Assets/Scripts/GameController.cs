@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
     public Text countdownDisplay;
     public Text playAgainDisplay;
     public bool gamePlaying;
+    public bool gameIsOver;
     float startTime;
     private RespawnManager respawnManager;
 
@@ -17,6 +18,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         gamePlaying = false;
+        gameIsOver = false;
         playAgainDisplay.text = "";
         respawnManager = GetComponent<RespawnManager>();
         StartCoroutine(CountdownToStart());
@@ -30,15 +32,21 @@ public class GameController : MonoBehaviour
 
     IEnumerator CountdownToStart()
     {
+        countdownDisplay.text = "GET READY!";
+
+        yield return new WaitForSeconds(1f);
+
         while (countdownTime > 0)
         {
+            AudioManager.instance.Play("KickStomp1", 1f, 1f, false);
             countdownDisplay.text = countdownTime.ToString();
 
             yield return new WaitForSeconds(1f);
 
             countdownTime--;
         }
-
+        
+        AudioManager.instance.Play("VikingHorn", 1f, 1f, false);
         countdownDisplay.text = "GO!";
 
         startTime = Time.time;
@@ -52,8 +60,11 @@ public class GameController : MonoBehaviour
 
     public void EndGame(string winner)
     {
+        Debug.Log("EndGame");
         //STOP GAME PLAYING
         gamePlaying = false;
+        gameIsOver = true;
+
 
         //DESTROY PLAYERS
         respawnManager.DestroyAllPlayers();
@@ -67,7 +78,7 @@ public class GameController : MonoBehaviour
         countdownDisplay.gameObject.SetActive(true);
 
         //DISPLAY TEXT TO RESTART GAME
-        playAgainDisplay.text = "Play Again? (Press X or A)";
+        playAgainDisplay.text = "Play Again? (Press X + A)";
     }
 
     public void RestartGame()

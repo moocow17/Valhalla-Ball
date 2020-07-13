@@ -56,7 +56,7 @@ public class PlayerInputHandler : MonoBehaviour
         {
             if (pressButtonWestCounter == 1) //onEntered: when button is first pressed
             {
-                if(gameController.gamePlaying == false)
+                if(gameController.gameIsOver == true)
                 {
                     if (pressButtonSouthCounter > 0)
                     {
@@ -84,7 +84,7 @@ public class PlayerInputHandler : MonoBehaviour
         {
             if (pressButtonSouthCounter == 1) //onEntered: when button is first pressed
             {
-                if (gameController.gamePlaying == false)
+                if (gameController.gameIsOver == true)
                 {
                     if (pressButtonWestCounter > 0)
                     {
@@ -143,7 +143,7 @@ public class PlayerInputHandler : MonoBehaviour
         {
             if (pressRBCounter == 1) //onEntered: when button is first pressed
             {
-                Debug.Log("attempting hit");
+                Debug.Log(mover.GetPlayerIndex().ToString() + ": OnRBumper(); time: " + System.DateTime.Now + " ; pressRBCounter: " + pressRBCounter.ToString());
                 if (!mover.hasBall)
                 {
                     mover.AttemptHit();//

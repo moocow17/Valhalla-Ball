@@ -28,6 +28,8 @@ public class RespawnManager : MonoBehaviour
     public GameObject[] ballSpawnLocations;
     List<GameObject> whiteStartingSpawnLocations = new List<GameObject>();
     List<GameObject> blackStartingSpawnLocations = new List<GameObject>();
+    List<GameObject> shuffledWhiteSpawnLocations = new List<GameObject>();
+    List<GameObject> shuffledBlackSpawnLocations = new List<GameObject>();
     List<GameObject> players = new List<GameObject>();
     List<Mover> playerMovers = new List<Mover>();
 
@@ -135,8 +137,6 @@ public class RespawnManager : MonoBehaviour
     void RespawnPlayers()
     {
         //get the black and white spawn locations and randomise them
-        List<GameObject> shuffledWhiteSpawnLocations = new List<GameObject>();
-        List<GameObject> shuffledBlackSpawnLocations = new List<GameObject>();
         
         shuffledWhiteSpawnLocations.AddRange(whiteStartingSpawnLocations);
         shuffledBlackSpawnLocations.AddRange(blackStartingSpawnLocations);
@@ -188,6 +188,7 @@ public class RespawnManager : MonoBehaviour
         }
 
         shuffledWhiteSpawnLocations.RemoveRange(0, shuffledWhiteSpawnLocations.Count);
+        shuffledBlackSpawnLocations.RemoveRange(0, shuffledBlackSpawnLocations.Count);
     }
 
     void RespawnBalls()

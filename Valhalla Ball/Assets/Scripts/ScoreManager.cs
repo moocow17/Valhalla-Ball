@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using MilkShake;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,8 @@ public class ScoreManager : MonoBehaviour
     Text whiteScoreText;
     Text blackScoreText;
 
+    public ShakePreset explosionShakePreset;
+    public ShakePreset bigExplosionShakePreset;
 
     // Start is called before the first frame update
     void Start()
@@ -48,12 +51,22 @@ public class ScoreManager : MonoBehaviour
         if(blackScore == blackGoalsToWin)
         {
             winner = "BLACK";
-            gameController.EndGame(winner);
+            GameWin(winner);
+            
         }
         else if(whiteScore == whiteGoalsToWin)
         {
+            Debug.Log("GameWin");
             winner = "WHITE";
-            gameController.EndGame(winner);
+            GameWin(winner);
         }
+    }
+
+    public void GameWin(string winner)
+    {
+        AudioManager.instance.Play("VikingHorn", 1f, 1f, false);
+        Shaker.ShakeAll(explosionShakePreset);
+        Shaker.ShakeAll(bigExplosionShakePreset);
+        gameController.EndGame(winner);
     }
 }

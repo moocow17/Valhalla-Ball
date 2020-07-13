@@ -164,25 +164,26 @@ MonoBehaviour:
   playerIndex: 0
   playerTeam: 0
   maxThrowForce: 80
-  minThrowForce: 1
-  maxForceHoldDownTime: 1
+  minThrowForce: 10
+  maxForceHoldDownTime: 0.7
   boostStrength: 1.5
   boostCapacity: 3
   maxBoostCapacity: 3
   isBoosting: 0
-  preHitChargePrefab: {fileID: 4747990098603156047, guid: 5f673aa33eba4144ea91e374b8e4f422,
+  preHitChargePrefab: {fileID: 8115128579289017681, guid: 8ba2af5a3c5e1be42b7002b69e9f89dc,
     type: 3}
   hitPrefab: {fileID: 1070544901411347713, guid: 47f363d9bf920ec408467285930a9697,
     type: 3}
   deathParticlesPrefab: {fileID: 4987302686197011569, guid: 7f98cc4541a2bf445a5dbacbe952616b,
     type: 3}
+  hitShakePreset: {fileID: 11400000, guid: 9239297004ef3514983374919b670f8c, type: 2}
   hitPointDistance: 2
   preHitPointDistance: 3
-  hitStartupTimeIncrement: 0.7
+  hitStartupTimeIncrement: 0.6
   actionState: 0
   attackStateTime: 0
   hitFreezeTimeIncrement: 0.2
-  nextAttackTimeIncrement: 1
+  nextAttackTimeIncrement: 0.9
   isHitting: 0
   hitStrengthMultiplier: 5000
   boundary:

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MilkShake;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,12 +54,14 @@ public class Mover : MonoBehaviour
 
     public GameObject preHitChargePrefab;
     GameObject preHitParticles;
+
+
     public GameObject hitPrefab;
     GameObject hitParticles;
     public GameObject deathParticlesPrefab;
     GameObject deathParticles;
 
-
+    public ShakePreset hitShakePreset;
 
     [SerializeField]
     private float hitPointDistance = 2.0f;
@@ -104,6 +107,8 @@ public class Mover : MonoBehaviour
     public bool hasBall = false;
     public bool hasChargedThrow = false;
 
+    System.Random rnd = new System.Random();
+
     private void Awake()
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
@@ -144,7 +149,7 @@ public class Mover : MonoBehaviour
     }
     
     public void SetIsGathering(float buttonPress) //allows player to gather/pickup/steal the ball; actual gathering is done in the IdentifyGather script
-    {
+    {        
         if (buttonPress > 0) //if the button is being pressed down currently it will have a value of 0.001 to 1
         {
             if (actionState == ActionState.Idle)
@@ -156,6 +161,7 @@ public class Mover : MonoBehaviour
         {
             isGathering = false;
         }
+        Debug.Log(playerIndex.ToString() + ": SetIsGathering; time: " + System.DateTime.Now + "; buttonPress: " + buttonPress.ToString() + "; isGathering: " + isGathering.ToString() + "; actionState: " + actionState.ToString());
     }
     
     public void DropBall()//drops the ball behinds the player relative to the direction they are facing and slows its movement while making its movement align with the player movement
@@ -185,7 +191,12 @@ public class Mover : MonoBehaviour
     {     
         holdTimeNormalised = Mathf.Clamp01(throwHoldTime / maxForceHoldDownTime);
         float force = holdTimeNormalised * maxThrowForce;
-        force = force + minThrowForce;
+        if(force < minThrowForce)
+        {
+            force = minThrowForce;
+        }
+
+        Debug.Log("Throw force: " + force.ToString());
         return force;
     }
 
@@ -208,17 +219,16 @@ public class Mover : MonoBehaviour
 
     public void AttemptHit()
     {
+        Debug.Log(playerIndex.ToString() + ": AttemptHit(); time: " + System.DateTime.Now + "; actionState: " + actionState.ToString() + "; Time.time: " + Time.time.ToString() + "; attackStateTime + nextAttackTimeIncrement: " + (attackStateTime + nextAttackTimeIncrement).ToString() + "; isBoosting: " + isBoosting.ToString() + "; hasChargedThrow: " + hasChargedThrow.ToString() + "; isGathering: " + isGathering.ToString());
+
         if (actionState == ActionState.Idle && Time.time >= attackStateTime + nextAttackTimeIncrement && isBoosting == false && hasChargedThrow == false && isGathering == false)
         {
             actionState = ActionState.AttackWindup;
-            attackStateTime  = Time.time;
-
+            attackStateTime  = Time.time;            
 
             //PRE-ATTACK ANIMATION/EFFECT            
             preHitParticles = Instantiate(preHitChargePrefab, transform.position + (transform.right * preHitPointDistance), transform.rotation) as GameObject;
             preHitParticles.transform.parent = transform;
-
-            
         }
     }
 
@@ -229,6 +239,13 @@ public class Mover : MonoBehaviour
 
         //ATTACK ANIMATION/EFFECT 
         hitParticles = Instantiate(hitPrefab, transform.position + (transform.right * hitPointDistance), transform.rotation) as GameObject;
+
+        //ATTACK SOUND
+        float randomPitch = UnityEngine.Random.Range(0.7f, 1.3f);
+        AudioManager.instance.Play("GravityHammer1", 1f, randomPitch, false);
+
+        //SHAKE CAMERA
+        Shaker.ShakeAll(hitShakePreset);
 
         //DETECT ALL OTHER PLAYERS THAT ARE HIT   
         //get player colliders hit by the polygon hit collider stored as a list        
@@ -296,14 +313,51 @@ public class Mover : MonoBehaviour
 
     public void KillPlayer(GameObject player)
     {
+        //DEATH SOUND
+        
+        int randomInt = rnd.Next(7);
+        switch (randomInt)
+        {
+            case 0:
+                AudioManager.instance.Play("DeathSound1", 1f, 1f, false);
+                break;
+            case 1:
+                AudioManager.instance.Play("DeathSound2", 1f, 1f, false);
+                break;
+            case 2:
+                AudioManager.instance.Play("DeathSound3", 1f, 1f, false);
+                break;
+            case 3:
+                AudioManager.instance.Play("DeathSound4", 1f, 1f, false);
+                break;
+            case 4:
+                AudioManager.instance.Play("DeathSound5", 1f, 1f, false);
+                break;
+            case 5:
+                AudioManager.instance.Play("DeathSound6", 1f, 1f, false);
+                break;
+            case 6:
+                AudioManager.instance.Play("DeathSound7", 1f, 1f, false);
+                break;
+            default:
+                AudioManager.instance.Play("DeathSound1", 1f, 1f, false);
+                break;
+        }
+        float randomPitch = UnityEngine.Random.Range(0.8f, 1.2f);
+        AudioManager.instance.Play("Explosion1", 1f, randomPitch, false);
+
+        //ANIMATION
         deathParticles = Instantiate(deathParticlesPrefab, player.transform.position, player.transform.rotation) as GameObject;
+
+        //KILL PLAYER OBJECT
         Mover playerMover = (Mover)player.GetComponent(typeof(Mover));
         /*if (playerMover.hitParticles.transform.parent != null)
         {
             playerMover.hitParticles.transform.parent = null;
         }  */     
-
         player.SetActive(false);
+
+        //SET TO RESPAWN
         respawnManager.PrepPlayerRespawn(player); 
     }
 
@@ -386,12 +440,14 @@ public class Mover : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (gameController.gamePlaying == true)
-        {
+        
             rigidbody2D.velocity = new Vector2(0, 0);
             if (actionState != ActionState.AttackBackswing)
             {
-                MovePlayer();
+                if (gameController.gamePlaying == true)
+                {
+                    MovePlayer();                
+                }
                 AimPlayer();
             }
 
@@ -402,6 +458,6 @@ public class Mover : MonoBehaviour
                     boostCapacity += Time.fixedDeltaTime; //replenish boost power when not boosting
                 }
             }
-        }       
+             
     }
 }
